@@ -1,0 +1,291 @@
+<style>
+    ul {
+        overflow-y: auto;
+        margin: 0;
+        padding: 16px 0 16px 0;
+        border-radius: 16px;
+    }
+
+    ul>li {
+        cursor: pointer;
+    }
+
+    Card {
+        height: fit-content;
+        background-color: var(--Color-Tools-Background);
+    }
+
+    CardImage {
+        height: fit-content;
+        background-color: var(--Color-Tools-Background);
+        display: flex;
+        align-items: center;
+    }
+
+    CardImage>img {
+        width: 68px;
+        height: 68px;
+        margin-right: 8px;
+    }
+
+    CardImage>div>h3 {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    CardImage>div>p {
+        font-size: 16px;
+    }
+
+    Bottom {
+        width: 100%;
+        padding: 16px;
+        background-color: transparent;
+    }
+
+    Bottom>Level1>Icon {
+        padding-left: 0px;
+    }
+
+    NewsLine {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    NewsLine>Card {
+        flex: 1;
+    }
+
+    NewsLine>Card>Icon {
+        padding: 0;
+        display: flex;
+        /* align-items: center; */
+        margin-bottom: 6px;
+    }
+
+    NewsLine>Card>Icon>img {
+        width: 28px;
+        height: 28px;
+        margin-right: 16px;
+    }
+
+    NewsLine>Card>div {
+        min-width: 300px;
+        height: 300px;
+        display: flex;
+    }
+
+    NewsLine>Card>div>div {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+</style>
+
+<div style="width: 100%;display: grid;align-content: start;gap: 16px;">
+    <!--Card class="Card">
+        <h3 style="margin-bottom: 6px;">分析</h3>
+        <div id="Analysis" style="height: 300px;display: flex;">
+            <div style="width: 100%;display: flex;justify-content: center;align-items: center;flex-direction: column;">
+                <h3>请输入文本</h3>
+            </div>
+            <div style="width: 100%;display: flex;justify-content: center;align-items: center;flex-direction: column;">
+                <h3>请输入文本</h3>
+            </div>
+        </div>
+    </Card-->
+    <NewsLine>
+        <Card class="Card">
+            <Icon>
+                <img src="/favorite.ico" />
+                <h3>知乎</h3>
+            </Icon>
+            <div id="ZhihuNews">
+                <div>
+                    <h3></h3>
+                </div>
+            </div>
+        </Card>
+        <Card class="Card">
+            <Icon>
+                <img src="/favorite.ico" />
+                <h3>稀土掘金</h3>
+            </Icon>
+            <div id="JuejinNews">
+                <div>
+                    <h3></h3>
+                </div>
+            </div>
+        </Card>
+        <Card class="Card">
+            <Icon>
+                <img src="/favorite.ico" />
+                <h3>酷安</h3>
+            </Icon>
+            <div id="CoolapkNews">
+                <div>
+                    <h3></h3>
+                </div>
+            </div>
+        </Card>
+        <Card class="Card">
+            <Icon>
+                <img src="/favorite.ico" />
+                <h3>Freebuf</h3>
+            </Icon>
+            <div id="FreebufNews">
+                <div>
+                    <h3></h3>
+                </div>
+            </div>
+        </Card>
+        <Card class="Card">
+            <Icon>
+                <img src="/favorite.ico" />
+                <h3>今日头条</h3>
+            </Icon>
+            <div id="ToutiaoNews">
+                <div>
+                    <h3></h3>
+                </div>
+            </div>
+        </Card>
+        <Card class="Card">
+            <Icon>
+                <img src="/favorite.ico" />
+                <h3>澎湃新闻</h3>
+            </Icon>
+            <div id="ThepaperNews">
+                <div>
+                    <h3></h3>
+                </div>
+            </div>
+        </Card>
+        <Card class="Card">
+            <Icon>
+                <img src="/favorite.ico" />
+                <h3>Hackernews</h3>
+            </Icon>
+            <div id="HackernewsNews">
+                <div>
+                    <h3></h3>
+                </div>
+            </div>
+        </Card>
+        <Card class="Card">
+            <Icon>
+                <img src="/favorite.ico" />
+                <h3>财联社</h3>
+            </Icon>
+            <div id="Cls-hotNews">
+                <div>
+                    <h3></h3>
+                </div>
+            </div>
+        </Card>
+        <Card class="Card">
+            <Icon>
+                <img src="/favorite.ico" />
+                <h3>微博</h3>
+            </Icon>
+            <div id="WeiboNews">
+                <div>
+                    <h3></h3>
+                </div>
+            </div>
+        </Card>
+    </NewsLine>
+</div>
+
+
+<script>
+    var NowPage = "NEWSSOURCE";
+    var UI_Link;
+
+    function InitPage() {
+        UI_Link = {};
+        UI_Link['zhihu'] = document.getElementById('ZhihuNews');
+        UI_Link['coolapk'] = document.getElementById('CoolapkNews');
+        UI_Link['juejin'] = document.getElementById('JuejinNews');
+        UI_Link['weibo'] = document.getElementById('WeiboNews');
+        UI_Link['toutiao'] = document.getElementById('ToutiaoNews');
+        UI_Link['thepaper'] = document.getElementById('ThepaperNews');
+        UI_Link['hackernews'] = document.getElementById('HackernewsNews');
+        UI_Link['cls-hot'] = document.getElementById('Cls-hotNews');
+        UI_Link['freebuf'] = document.getElementById('FreebufNews');
+        if (false) {
+            Object.entries(UI_Link).forEach(([key, element]) => {
+                updateNews(key);
+            });
+        } else {
+            updateNews2();
+        }
+        // updateWordsCloud();
+    }
+
+    function UnPage() {
+        UI_Link = null;
+    }
+
+    async function updateNews(id) {
+        try {
+            const res = await fetch(`/api/newsnow?id=${id}`);
+            if (!res.ok) throw new Error(res.statusText);
+            const t = await res.json();
+            const ul = document.createElement('ul');
+            let i = 0;
+            t.forEach((now) => {
+                const p = document.createElement('li');
+                p.innerText = now['title'];
+                p.style.setProperty('--i', i++);
+                p.onclick = () => {
+                    window.open(now.url, "_blank");
+                };
+                ul.appendChild(p);
+            });
+            if (NowPage != "NEWSSOURCE") return;
+            UI_Link[id].innerHTML = ``;
+            UI_Link[id].appendChild(ul);
+        } catch (err) {
+            if (NowPage != "NEWSSOURCE") return;
+            if (err.message == "Failed to fetch") err.message = "网络错误喵<br>≧ ﹏ ≦";
+            UI_Link[id].innerHTML = `<div style="width: 100%;display: flex;justify-content: center;align-items: center;flex-direction: column;"><h3 style="text-align: center;">${err.message}</h3></div>`;
+            console.error(err);
+        }
+    }
+
+    async function updateNews2() {
+        try {
+            const res = await fetch(`/api/newsnow2`);
+            if (!res.ok) throw new Error(res.statusText);
+            const t = await res.json();
+            t.forEach((news) => {
+                if (!(news.id in UI_Link)) return;
+                if (news.status == "success" || news.status == "cache") {
+                    const ul = document.createElement('ul');
+                    let i = 0;
+                    news.items.forEach((now) => {
+                        const p = document.createElement('li');
+                        p.innerText = now['title'];
+                        p.style.setProperty('--i', i++);
+                        p.onclick = () => {
+                            window.open(now.url, "_blank");
+                        };
+                        ul.appendChild(p);
+                    });
+
+                    if (NowPage != "NEWSSOURCE") return;
+                    UI_Link[news.id].innerHTML = ``;
+                    UI_Link[news.id].appendChild(ul);
+                }
+            });
+        } catch (err) {
+            // UI_Link[id].innerHTML = `<div style="width: 100%;display: flex;justify-content: center;align-items: center;flex-direction: column;"><h3>加载不出来喵<br>${err.message}</h3></div>`;
+            console.error(err);
+        }
+    }
+</script>

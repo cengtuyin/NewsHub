@@ -1,0 +1,250 @@
+<style>
+    Card {
+        height: fit-content;
+        background-color: var(--Color-Tools-Background);
+    }
+
+    CardImage {
+        height: fit-content;
+        background-color: var(--Color-Tools-Background);
+        display: flex;
+        align-items: center;
+    }
+
+    CardImage>img {
+        width: 68px;
+        height: 68px;
+        margin-right: 8px;
+    }
+
+    CardImage>div>h3 {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    CardImage>div>p {
+        font-size: 16px;
+    }
+
+    Bottom {
+        width: 100%;
+        padding: 16px;
+        background-color: transparent;
+    }
+
+    Bottom>Level1>Icon {
+        padding-left: 0px;
+    }
+
+    Card>h3 {
+        display: flex;
+    }
+</style>
+
+<div style="width: 100%;display: flex;flex-direction: column;gap: 16px;">
+    <Card class="Card">
+        <h3 style="margin-bottom: 6px;">
+            <Icon>merge_type</Icon>推送渠道
+        </h3>
+        <p style="margin-bottom: 16px;">选择你处理各项任务时使用的模型</p>
+        <SettingSetect style="margin: 0 0 16px 0;">
+            <Options>
+                <hOption>默认</hOption>
+                <hOption onclick="addModel(this)" hide>
+                    <p style="width: 32px;text-align: center;cursor: pointer;"> + </p>
+                </hOption>
+            </Options>
+        </SettingSetect>
+        <SettingSetect style="margin: 0 0 16px 0;">
+            <p>类型</p>
+            <Options>
+                <hOption>Webhook</hOption>
+            </Options>
+        </SettingSetect>
+        <div style="width: 100%;display: grid;justify-content: start;gap: 16px;margin-bottom: 16px;">
+            <input id="ModelUrl" style="min-width: 340px;max-width: calc(-266px + 100vw);" type="text" placeholder="Url" />
+            <textarea id="Model" style="min-width: 240px;max-width: calc(-266px + 100vw);" type="text" placeholder="Header" ></textarea>
+            <textarea id="ModelKey" style="min-width: 460px;max-width: calc(-266px + 100vw);" type="text" placeholder="Body" ></textarea>
+        </div>
+        <CardButtons id="ModelSaveMenu" hide>
+            <p hide>Message</p>
+            <button onclick="resetSettings(this)" unable>撤销</button>
+            <button onclick="saveNewSettings(this)">保存</button>
+        </CardButtons>
+    </Card>
+</div>
+
+<script>
+    var NowPage = "SETTINGS";
+    var UI_inputs = document.querySelectorAll("input, textarea");
+
+    function InitPage() {
+        AddMaterialIconClasses("Card>h3>Icon")
+        let keyslist = [];
+        UI_inputs.forEach((element) => {
+            keyslist.push(element.id);
+        });
+        loadSettings(keyslist);
+    }
+
+    function UnPage() {
+        NowPage = null;
+        UI_inputs = null;
+    }
+
+    function addModel(element) {
+        const option = document.createElement("hOption");
+        option.setAttribute("hide", '');
+        option.innerText = "NewModel";
+        element.parentNode.appendChild(option);
+    }
+
+    async function resetSettings(button) {
+        let keyslist = [];
+        button.parentNode.parentNode.querySelectorAll("input, textarea").forEach((element) => {
+            keyslist.push(element.id);
+        });
+        ButtonLoadingAnimation(button, true);
+        const out = setTimeout(() => {
+            console.log("Run")
+            CardButtonsDisplayMessage(button, true, "你补药超时啊")
+            setTimeout(() => {
+                CardButtonsDisplayMessage(button, false)
+                ButtonLoadingAnimation(button, false);
+            }, 1000 * 3);
+        }, 1000 * 8);
+        await loadSettings(keyslist);
+        clearTimeout(out);
+        console.log("Clear")
+        button.parentNode.setAttribute('hide', '');
+        setTimeout(() => {
+            ButtonLoadingAnimation(button, false);
+        }, 300);
+    }
+
+    async function saveNewSettings(button) {
+        ButtonLoadingAnimation(button, true);
+        const data = await saveSettingsElements(button.parentNode.parentNode.querySelectorAll("input, textarea"));
+        if (data.success) {
+            button.parentNode.setAttribute('hide', '');
+            setTimeout(() => {
+                ButtonLoadingAnimation(button, false);
+            }, 300);
+        } else {
+            CardButtonsDisplayMessage(button, true, data.message)
+            setTimeout(() => {
+                CardButtonsDisplayMessage(button, false)
+                ButtonLoadingAnimation(button, false);
+            }, 1000 * 3);
+        }
+    }
+
+    async function loadSettings(keys) {
+        UI_inputs.forEach((element) => {
+            if (keys.indexOf(element.id) == -1) return;
+            element.disabled = true;
+            if (element.type == "text") element.value = "-- 加载中，稍等片刻 --";
+        });
+        data = await getSettings(keys);
+        UI_inputs.forEach((element) => {
+            if (keys.indexOf(element.id) == -1) return;
+            setElementValue(element, data[element.id])
+            if (data[element.id] != "这是一个标记信息") element.disabled = false;
+        });
+    }
+
+    async function getSettings(keys) {
+        try {
+            const res = await fetch(`/api/settings?keys=${encodeURIComponent(JSON.stringify(keys, null, 0))}`);
+            if (res.status == 403) {
+                rdata = {};
+                keys.forEach((key) => {
+                    rdata[key] = "这是一个标记信息";
+                })
+                return rdata;
+            } else if (!res.ok) throw new Error(res.statusText);
+            const t = await res.json();
+            if (t.success) {
+                return t.data;
+            } else {
+                console.error(t.message);
+                return null;
+            }
+        } catch (err) {
+            console.error(err);
+            return null;
+        }
+    }
+
+    function setElementValue(element, value) {
+        if (value == "这是一个标记信息") {
+            setElementNeedLogin(element);
+            return;
+        }
+        switch (element.type) {
+            case "checkbox":
+                element.checked = value;
+                break;
+            default:
+                element.value = value;
+                break;
+        }
+    }
+    function setElementNeedLogin(element) {
+        switch (element.type) {
+            case "checkbox":
+                element.checked = false;
+                break;
+            default:
+                element.value = "-- 需要登录后才可操作 --";
+                break;
+        }
+    }
+
+    async function saveSettingsElements(elements) {
+        let keys = [];
+        let values = [];
+        elements.forEach((element) => {
+            keys.push(element.id);
+            switch (element.type) {
+                case "checkbox":
+                    values.push(element.checked);
+                    break;
+                default:
+                    values.push(element.value);
+                    break;
+            }
+        });
+        return await saveSettings(keys, values);
+    }
+
+    async function saveSettings(keys, values) {
+        try {
+            const response = await fetch('/api/settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "keys": keys,
+                    "values": values
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('错误:', error);
+            switch (error.message) {
+                case "Failed to fetch": error.message = "请检查网络状况喵"; break;
+            }
+            return {
+                success: false,
+                message: error.message
+            };
+        }
+    }
+</script>

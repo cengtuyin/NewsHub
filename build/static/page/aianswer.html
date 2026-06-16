@@ -1,0 +1,412 @@
+<style>
+    ul {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 16px 0 16px 0;
+        border-radius: 16px;
+        overflow-y: auto;
+    }
+
+    ul>li {
+        width: auto;
+        cursor: pointer;
+        animation: fade 0.3s;
+        animation-delay: calc(var(--i) * 30ms);
+        animation-fill-mode: forwards;
+    }
+
+    Card {
+        height: fit-content;
+        background-color: var(--Color-Tools-Background);
+    }
+
+    Card>h3 {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    Card>p {
+        font-size: 16px;
+    }
+
+    CardImage {
+        height: fit-content;
+        background-color: var(--Color-Tools-Background);
+        display: flex;
+        /* align-items: center; */
+    }
+
+    CardImage>img {
+        width: 68px;
+        height: 68px;
+        margin-right: 8px;
+    }
+
+    CardImage>div>h3 {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    CardImage>div>p {
+        font-size: 16px;
+    }
+
+    .follow-tooltip {
+        position: fixed;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        pointer-events: none;
+        z-index: 10000;
+        white-space: nowrap;
+        transition: opacity 0.2s;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .follow-tooltip.hidden {
+        display: none;
+    }
+</style>
+
+<div
+    style="width: -webkit-fill-available;min-height: -webkit-fill-available;display: flex;flex-wrap: wrap;align-content: flex-start;gap: 16px;">
+    <div style="display: flex;width: -webkit-fill-available;">
+        <div
+            style="width: max-content;min-width: 300px;display: grid;grid-auto-flow: row;gap: 16px;margin-right: 16px;">
+            <CardImage class="Card">
+                <Icon>track_changes</Icon>
+                <div>
+                    <h3>事件追踪</h3>
+                    <p>追踪相关事件直到完成</p>
+                </div>
+            </CardImage>
+            <CardImage class="Card">
+                <Icon>manage_search</Icon>
+                <div>
+                    <h3>焦点分析</h3>
+                    <p>分析焦点事件形成原因以及影响</p>
+                </div>
+            </CardImage>
+            <CardImage class="Card">
+                <Icon>query_stats</Icon>
+                <div>
+                    <h3>事件链</h3>
+                    <p>整理新闻形成链路表</p>
+                </div>
+            </CardImage>
+            <CardImage class="Card">
+                <Icon>monitor_weight</Icon>
+                <div>
+                    <h3>权重判别</h3>
+                    <p>如果事情达到设定参数，会在未设置该推送类别的情况下进行推送</p>
+                </div>
+            </CardImage>
+        </div>
+        <div style="width: -webkit-fill-available;display: grid;grid-auto-flow: column;gap: 16px;">
+            <Card style="height: -webkit-fill-available;" class="Card">
+                <h3>事件追踪</h3>
+                <p>自动追踪相关事件直到完成</p>
+            </Card>
+            <Card style="height: -webkit-fill-available;" class="Card">
+                <h3>焦点分析</h3>
+                <p>自动分析焦点事件形成原因以及影响</p>
+            </Card>
+            <Card style="height: -webkit-fill-available;" class="Card">
+                <h3>事件链</h3>
+                <p>自动整理新闻形成链路表</p>
+            </Card>
+        </div>
+    </div>
+    <div style="display: flex;gap: 16px;width: -webkit-fill-available;">
+        <Card class="Card" style="width: -webkit-fill-available;flex: 1;">
+            <h3 style="margin-bottom: 6px;">配置</h3>
+            <p style="margin-bottom: 16px;">选择你处理各项任务时使用的模型</p>
+            <div style="display: flex;flex-direction: column;gap: 16px;margin-bottom: 16px;">
+                <ul style="height: -webkit-fill-available;display: flex;flex-direction: row;flex-wrap: wrap;">
+                    <li style="--i: 0;">
+                        <input type="checkbox" checked>
+                        <label for="male">事件追踪</label>
+                    </li>
+                    <li style="--i: 1;">
+                        <input type="checkbox" checked>
+                        <label for="male">焦点分析</label>
+                    </li>
+                    <li style="--i: 2;">
+                        <input type="checkbox" checked>
+                        <label for="male">事件链</label>
+                    </li>
+                    <li style="--i: 3;">
+                        <input type="checkbox" checked>
+                        <label for="male">权重判别</label>
+                    </li>
+                </ul>
+            </div>
+            <CardButtons id="ModelSaveMenu" hide>
+                <button onclick="this.parentNode.setAttribute('hide','')" unable>撤销</button>
+                <button onclick="this.parentNode.setAttribute('hide','')">保存</button>
+            </CardButtons>
+        </Card>
+        <Card class="Card" style="width: -webkit-fill-available;flex: 1;max-height: 250px;">
+            <h3 style="margin-bottom: 6px;">功能</h3>
+            <p style="margin-bottom: 16px;">喵/Meow/Nay/Miau/Miao</p>
+            <div style="height: 250px;display: flex;flex-direction: column;gap: 16px;margin-bottom: 16px;">
+                <ul style="height: calc(250px - 16px * 2);display: flex;flex-direction: row;flex-wrap: wrap;">
+                    <li style="--i: 0;"><button onclick="openOption(this)">
+                            <Icon>search</Icon>搜索 （挑选 + AI）
+                        </button></li>
+                    <li style="--i: 1;"><button onclick="openOption(this)">
+                            <Icon>content_paste_search</Icon>搜索 （AI）
+                        </button></li>
+                    <li style="--i: 2;"><button onclick="openOption(this)">
+                            <Icon>manage_search</Icon>自编排（挑选 + AI）
+                        </button></li>
+                    <li style="--i: 3;"><button id="analsis_wordslink_smart" onclick="openOption(this)">
+                            <Icon>query_stats</Icon>分析（类别 + AI）
+                        </button></li>
+                </ul>
+            </div>
+        </Card>
+    </div>
+</div>
+
+<script>
+    var NowPage = "AIANSWER";
+    var WordInfo = {};
+    var LinkWord = {};
+    var UI_dialog = document.getElementById("dialog");
+
+    function InitPage() {
+        AddMaterialIconClasses(`CardImage>Icon`);
+        AddMaterialIconClasses(`ul>li>button>Icon`);
+    }
+
+    function UnPage() {
+        NowPage = null;
+        WordInfo = null;
+        LinkWord = null;
+        UI_dialog = null;
+    }
+
+    function openOption(element) {
+        switch (element.id) {
+            case 'analsis_wordslink_smart':
+                let body = `<OptionsCard>
+                    <Options style="margin-left: -16px;padding-right: 32px;">
+                        <hOption style="--i: 0;" active>
+                            <Icon>whatshot</Icon>
+                            <p>焦点信息</p>
+                        </hOption>
+                        <hOption style="--i: 1;">
+                            <Icon>settings</Icon>
+                            <p>设置</p>
+                        </hOption>
+                        <hOption style="--i: 2;" id="closebutton">
+                            <Icon>close</Icon>
+                            <p>关闭</p>
+                        </hOption>
+                    </Options>
+                    <Views>
+                        <View style="--i: 0;">
+                            <div style="padding: 16px;">
+                                <h3>Thinking...</h3>
+                                <p id="LogMessage">Loading</p>
+                            </div>
+                        </View>
+                        <View style="--i: 1;" hide>
+                            <div style="padding: 16px;">
+                                <ul>
+                                    <li>
+                                        <SettingSetect>
+                                            <p style="margin-right: 65px;">整理模型</p>
+                                            <Options>
+                                                <hOption>默认</hOption>
+                                            </Options>
+                                        </SettingSetect>
+                                    </li>
+                                    <li>
+                                        <SettingSetect>
+                                            <p style="margin-right: 65px;">分析模型</p>
+                                            <Options>
+                                                <hOption>默认</hOption>
+                                            </Options>
+                                        </SettingSetect>
+                                    </li>
+                                    <li>
+                                        <SettingSetect>
+                                            <p style="margin-right: 65px;">汇总模型</p>
+                                            <Options>
+                                                <hOption>默认</hOption>
+                                            </Options>
+                                        </SettingSetect>
+                                    </li>
+                                </ul>
+                            </div>
+                        </View>
+                        <View style="--i: 2;" hide>
+                            <div style="padding: 16px;">
+                                <h3>Goodbyte</h3>
+                            </div>
+                        </View>
+                    </Views>
+                </OptionsCard>`;
+                clickOption(element, body,"closebutton");
+                analsis_wordslink_smart();
+                break;
+
+            default:
+                break;
+        }
+        _initPage();
+        AddMaterialIconClasses(`dialog>Card>h3>Icon`);
+    }
+
+    async function analsis_wordslink_smart(level = 0) {
+        const logmessage = document.getElementById("LogMessage");
+        switch (level) {
+            case 0:
+                logmessage.innerHTML = `标记->整理->分析->汇总->呈现`;
+                try {
+                    const res = await fetch(`/api/wordsin?length=2`);
+                    if (!res.ok) throw new Error(res.statusText);
+                    const t = await res.json();
+                    if (t.success) {
+                        let message = "";
+                        Object.entries(t.words)
+                            .sort((a, b) => b[1].length - a[1].length).forEach(([word, news], index) => {
+                                let ii = 0;
+                                news.forEach((thenew) => {
+                                    const v = t.news[thenew];
+                                    let content;
+                                    try {
+                                        content = v.extra.hover;
+                                    } catch (error) { }
+                                    news[ii++] = `${v.title}${content && content != " " && v.title != content ? `：${content}` : ""}`;
+                                })
+                                message += `${word}：${news[ii - 1]}，`;
+                            });
+                        LinkWord = t.words;
+                        logmessage.innerHTML = `标记|->整理->分析->汇总->呈现`;
+                        message = [
+                            {
+                                "role": "system",
+                                "content": "你是一个专业的新闻总结助手，你需要为用户总结新闻内容。需要确保新闻关键内容完整无缺、信息完整没有歧义。需要确保内容能够被快速阅读理解。"
+                            },
+                            {
+                                "role": "user",
+                                "content": `整理以下数据：\n${message}\n如果有重复的项目则选取重要内容整合。需要确保内容足够详细完整。不需要说除新闻以外任何内容。`
+                            }
+                        ];
+                        let newmessage = await chat(message);
+                        logmessage.innerHTML = `标记|->整理|->分析->汇总->呈现`;
+                        message[2] = {
+                            "role": "assistant",
+                            "content": newmessage
+                        }
+                        message[3] = {
+                            "role": "user",
+                            "content": `概括每条新闻。需要确保信息完整。格式为每行“序号. 内容`
+                        };
+                        newmessage = await chat(message);
+                        logmessage.innerHTML = `标记|->整理|->分析|->汇总->呈现`;
+                        message[4] = {
+                            "role": "assistant",
+                            "content": newmessage
+                        }
+                        message[5] = {
+                            "role": "user",
+                            "content": `根据重要性、影响力排序。不要修改新闻内容，不需要回答除新闻以外任何内容。使用简体中文回答。`
+                        };
+                        newmessage = await chat(message);
+                        logmessage.innerHTML = `标记|->整理|->分析|->汇总|->呈现`;
+                        parentvoid = logmessage.parentNode;
+                        parentvoid.children[0].remove();
+                        logmessage.remove();
+                        let ul = document.createElement("ul");
+                        ul.style.height = "calc(60vh - 48px - 16px * 3 - 36px)";
+                        ul.style.overflowX = "auto";
+                        const lines = newmessage.split("\n").filter(line => line.trim() !== "");
+                        lines.forEach((line) => {
+                            let p = document.createElement("p");
+                            p.innerText = line;
+                            ul.appendChild(p);
+                        });
+                        parentvoid.appendChild(ul);
+                    } else {
+                        alert(t.message);
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+                break;
+        }
+    }
+
+    async function chat(message) {
+        if (!(message instanceof Array)) {
+            message = [
+                {
+                    "role": "user",
+                    "content": message
+                }
+            ];
+        }
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(message)
+            });
+            if (res.status == 403) {
+                return "请先登录后再操作";
+            } else if (!res.ok) throw new Error(res.statusText);
+            const t = await res.json();
+            if (t.success) {
+                return t.data;
+            } else {
+                return t.message;
+            }
+        } catch (err) {
+            console.error(err);
+            return "发生错误";
+        }
+    }
+
+    function clickOption(element, html, closeelement = null) {
+        if (NowPage != "AIANSWER") return;
+        UI_dialog.innerHTML = `<Card style="max-width: 70vw;max-height: 60vh;" class="Card"><h3 style="display: flex;color: var(--Color-Header-Icon-Unpress);margin-bottom: 16px;">Title</h3></Card>`;
+        UI_dialog.children[0].children[0].innerHTML = `${element.innerHTML}`;
+        UI_dialog.children[0].appendChild(document.createRange().createContextualFragment(html).firstChild);
+        UI_dialog.children[0].children[1].onclick = (e) => {
+            e.stopPropagation();
+        };
+        if (closeelement == null) closeelement = UI_dialog;
+        else closeelement = document.getElementById(closeelement);
+        closeelement.onclick = () => {
+            UI_dialog.classList.add("hide");
+            UI_dialog.offsetHeight;
+            setTimeout(() => {
+                UI_dialog.style.display = "none";
+            }, 300);
+        }
+        UI_dialog.children[0].style.viewTransitionName = 'dialog'
+        element.style.viewTransitionName = 'dialog'
+        if (document.startViewTransition) {
+            document.startViewTransition(() => {
+                UI_dialog.style.display = "flex";
+                UI_dialog.offsetHeight;
+                UI_dialog.classList.remove("hide");
+                element.style.viewTransitionName = '';
+            });
+        } else {
+            UI_dialog.style.display = "flex";
+            UI_dialog.offsetHeight;
+            UI_dialog.classList.remove("hide");
+            element.style.viewTransitionName = '';
+        }
+    }
+</script>

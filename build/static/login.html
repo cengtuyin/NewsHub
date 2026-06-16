@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>登录</title>
+    <link rel="stylesheet" href="/src/css/normal.css">
+    <script type="text/javascript" src="/src/js/normal.js"></script>
+
+    <style>
+        Main {
+            min-height: 100vh;
+            padding: 0 18% 0 18%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .willhide {
+            grid-area: 1 / 1 / 1 / 1;
+            opacity: 1;
+            filter: blur(0px);
+            will-change: opacity, filter;
+            transition: opacity 0.2s ease, filter 0.3s ease;
+        }
+
+        .hide {
+            opacity: 0;
+            filter: blur(8px);
+        }
+
+        .switch {
+            opacity: 0;
+            filter: blur(2px);
+        }
+    </style>
+</head>
+
+<body>
+    <Header>
+        <Icon>
+            <img src="./favorite.ico" />
+            <p>NewsHub</p>
+        </Icon>
+    </Header>
+
+    <Main>
+        <div style="display: grid;flex-direction: column;justify-content: center;" class="Card">
+            <div id="loading" style="display: flex;flex-direction: column;justify-content: center;"
+                class="willhide hide">
+                <p id="message" style="text-align: center;">Thinking ヾ(≧▽≦*)o</p>
+            </div>
+            <div id="center" style="display: flex;flex-direction: column;" class="willhide">
+                <h3 style="margin-bottom: 16px;">登录</h3>
+                <input id="user" style="margin-bottom: 16px;" type="text" placeholder="账号" />
+                <input id="password" style="margin-bottom: 16px;" type="password" placeholder="密码" />
+                <button onclick="login()">登录</button>
+            </div>
+        </div>
+    </Main>
+
+    <Bottom>
+        <Level1>
+            <Icon>
+                <img src="./favorite.ico" />
+                <p>NewsHub</p>
+            </Icon>
+            <p>Made By Rexxrt</p>
+        </Level1>
+        <Level2>
+
+        </Level2>
+    </Bottom>
+
+    <script>
+        const UI_center = document.getElementById("center");
+        const UI_loading = document.getElementById("loading");
+        const UI_message = document.getElementById("message");
+        const message = document.getElementById("message").innerText;
+        const UI_user = document.getElementById("user");
+        const UI_password = document.getElementById("password");
+
+        deleteAllCookies();
+
+        async function login() {
+            UI_message.innerText = message;
+            UI_center.classList.add("hide");
+            UI_loading.classList.remove("hide");
+            const nowtime = Date.now()
+            setTimeout(() => {
+                UI_center.style.display = "none";
+            }, 300);
+            try {
+                const res = await fetch(`/api/login?user=${encodeURIComponent(UI_user.value)}&password=${encodeURIComponent(UI_password.value)}`);
+                if (!res.ok) throw new Error(res.statusText);
+                const t = await res.json();
+                if (t.success) {
+                    UI_message.innerText = ">> 欢迎光临 <<";
+                    window.location.href = "/settings.html";
+                } else {
+                    if (Date.now() - nowtime < 300) {
+                        UI_message.innerText = t.message;
+                    } else {
+                        UI_loading.classList.add("switch");
+                        setTimeout(() => {
+                            UI_message.innerText = t.message;
+                            UI_loading.classList.remove("switch");
+                        }, 300);
+                    }
+                    setTimeout(() => {
+                        UI_loading.classList.add("hide");
+                        setTimeout(() => {
+                            UI_center.style.display = "flex";
+                            UI_center.offsetHeight;
+                            UI_center.classList.remove("hide");
+                        }, 400);
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function deleteAllCookies() {
+            document.cookie.split(';').forEach(cookie => {
+                const name = cookie.split('=')[0].trim();
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            });
+        }
+
+    </script>
+</body>
+
+</html>

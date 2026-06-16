@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>NewsHub</title>
+    <link rel="stylesheet" href="/src/css/normal.css">
+    <script type="text/javascript" src="/src/js/normal.js"></script>
+
+    <style>
+        body {
+            background-color: var(--Color-Tools-Background);
+        }
+
+        Header {
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 2%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0.6) 70%, rgba(255, 255, 255, 0.0));
+        }
+
+        .Header_Sub {
+            backdrop-filter: blur(28px);
+            box-shadow: 0 2px 1px rgba(0, 0, 0, 0.08);
+            background-color: var(--Color-Header-Background);
+        }
+    </style>
+</head>
+
+<body>
+    <Header>
+        <Icon>
+            <img src="./favorite.ico" />
+            <p>NewsHub</p>
+        </Icon>
+        <Tools>
+            <Tool>
+                <p>Tool</p>
+            </Tool>
+            <Tool onclick="window.location.href = '/settings.html'">
+                <img src="./favorite.ico" />
+                <p>Settings</p>
+            </Tool>
+        </Tools>
+    </Header>
+
+    <Main style="width: 100%;padding: 0;">
+        <canvas id="drawCanvas" width="100%" height="100%" style="width:100%; height:100%;"></canvas>
+    </Main>
+
+    <Bottom>
+        <Level1>
+            <Icon>
+                <img src="./favorite.ico" />
+                <p>NewsHub</p>
+            </Icon>
+            <p>Made By Rexxrt</p>
+        </Level1>
+        <Level2>
+
+        </Level2>
+    </Bottom>
+
+    <script>
+        const canvas = document.getElementById('drawCanvas');
+        const ctx = canvas.getContext('2d');
+        let ctx_x = 0, ctx_y = 0, ctx_zoom = 1;
+        let startX = 0, startY = 0, mobilex = 0, mobiley = 0, lastframe = 0;
+        let viewwidth = window.innerWidth;
+        let viewheight = window.innerHeight + 20;
+        let fps = 1000 / 180;
+        let message = "";
+        let news_zhihu = [];
+        let aiday = [];
+
+        function Init(mode = 0b111111111111111111111111) {
+            if (mode & 0b01 != 0) {
+                viewwidth = window.innerWidth;
+                viewheight = window.innerHeight + 20;
+                // canvas.style.aspectRatio = `${width}/${height}`;
+                canvas.width = viewwidth;
+                canvas.height = viewheight;
+            }
+        }
+
+        function updateCanvas() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const widthhalf = canvas.width / 2;
+            const heighthalf = canvas.height / 2;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+
+            ctx.strokeStyle = "#dddddd";
+            ctx.lineWidth = 3 * ctx_zoom;
+            const step = 50;
+            const addx = width / 2 % step;
+            const addy = heighthalf % step;
+            for (let x = -step; x * ctx_zoom < width + step + addx; x += step) {
+                ctx.beginPath();
+                ctx.moveTo((x + ctx_x % step + addx) * ctx_zoom, 0);
+                ctx.lineTo((x + ctx_x % step + addx) * ctx_zoom, height);
+                ctx.stroke();
+            }
+            for (let y = -step; y * ctx_zoom < height + step + addy; y += step) {
+                ctx.beginPath();
+                ctx.moveTo(0, (y + ctx_y % step + addy) * ctx_zoom);
+                ctx.lineTo(width, (y + ctx_y % step + addy) * ctx_zoom);
+                ctx.stroke();
+            }
+
+
+            /*  
+            *   链接
+            *   
+            */
+            let top = (heighthalf + (84 + ctx_y)) * ctx_zoom;
+            let left = (16 + ctx_x) * ctx_zoom
+            let top2 = top;
+            let left2 = left;
+            ctx.strokeStyle = "#3D91FF";
+            ctx.lineWidth = 3 * ctx_zoom;
+            roundRect(left, top, (200) * ctx_zoom, (90) * ctx_zoom, 20 * ctx_zoom);
+            ctx.fillStyle = '#eeeeee';
+            ctx.fill();
+            ctx.stroke();
+            ctx.font = `bold ${23 * ctx_zoom}px "Microsoft YaHei"`;
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#111111';
+            ctx.fillText(`请输入文本`, left + 16 * ctx_zoom, top + 40 * ctx_zoom);
+            ctx.font = `${22 * ctx_zoom}px "Microsoft YaHei"`;
+            ctx.fillText(`请输入文本`, left + 16 * ctx_zoom, top + 68 * ctx_zoom);
+            /*
+            *   今日
+            *   
+            */
+            top = (heighthalf - 200 + ctx_y) * ctx_zoom;
+            left = (widthhalf + 150 + ctx_x) * ctx_zoom;
+            top2 = top;
+            left2 = left;
+            ctx.strokeStyle = "#3D91FF";
+            ctx.textAlign = 'left';
+            ctx.lineWidth = 1 * ctx_zoom;
+            news_zhihu.some((v) => {
+                if (v["content"] == "" || v["content"] == "-") return false;
+                if (top > viewheight) {
+                    top += -100 * ctx_zoom;
+                    return false;
+                }
+                const len = (v["title"].length > v["content"].length ? getMessageSize(v["title"]) : getMessageSize(v["content"]));
+                roundRect(left, top, (len % 100 != 0 ? len + (100 - len % 100) + 100 : len), (100) * ctx_zoom, 0 * ctx_zoom);
+                ctx.fillStyle = '#eeeeee';
+                ctx.fill();
+                ctx.stroke();
+                ctx.font = `bold ${23 * ctx_zoom}px "Microsoft YaHei"`;
+                ctx.fillStyle = '#111111';
+                ctx.fillText(`${v["title"]}`, left + 16 * ctx_zoom, top + 40 * ctx_zoom);
+                ctx.font = `${22 * ctx_zoom}px "Microsoft YaHei"`;
+                ctx.fillText(`${v["content"]}`, left + 16 * ctx_zoom, top + 78 * ctx_zoom);
+                top += -100 * ctx_zoom;
+                if (top < -100) {
+                    return true;
+                }
+            });
+            /*
+            *   往事
+            *   
+            */
+            /*top = (heighthalf - 200 + ctx_y) * ctx_zoom;
+            left = (widthhalf - 150 + ctx_x) * ctx_zoom;*/
+            top = (heighthalf + 100 + ctx_y) * ctx_zoom;
+            left = (widthhalf + 150 + ctx_x) * ctx_zoom;
+            top2 = top;
+            left2 = left;
+            ctx.strokeStyle = "#3D91FF";
+            // ctx.textAlign = 'right';
+            ctx.lineWidth = 1 * ctx_zoom;
+            aiday.some((v) => {
+                if (top < -100) {
+                    top += 100 * ctx_zoom;
+                    return false;
+                }
+                let title = "";
+                let content = "";
+                const match1 = v.match(/·<b>(.*)<\/b><br>&nbsp;&nbsp;&nbsp;/);
+                const match2 = v.match(/·<b>.*<\/b><br>&nbsp;&nbsp;&nbsp;(.*)$/);
+                if (match1 && match1[1]) {
+                    title = match1[1];
+                }
+                if (match2 && match2[1]) {
+                    content = match2[1];
+                }
+                const len = title != "" ? (title.length > content.length ? getMessageSize(title) : getMessageSize(content)) : getMessageSize(v);
+                roundRect(left, top, (len % 100 != 0 ? len + (100 - len % 100) + 100 : len), (100) * ctx_zoom, 0 * ctx_zoom);
+                ctx.fillStyle = '#eeeeee';
+                ctx.fill();
+                ctx.stroke();
+                ctx.font = `bold ${23 * ctx_zoom}px "Microsoft YaHei"`;
+                ctx.fillStyle = '#111111';
+                if (match1 && match1[1]) {
+                    ctx.fillText(match1[1], left + 16 * ctx_zoom, top + 40 * ctx_zoom);
+                } else {
+                    ctx.fillText(v, left + 16 * ctx_zoom, top + 58 * ctx_zoom);
+                }
+                if (match2 && match2[1]) {
+                    ctx.font = `${22 * ctx_zoom}px "Microsoft YaHei"`;
+                    ctx.fillText(match2[1], left + 16 * ctx_zoom, top + 78 * ctx_zoom);
+                }
+                top += 100 * ctx_zoom;
+                if (top > canvas.height) {
+                    return true;
+                }
+            });
+
+
+            ctx.textAlign = 'left';
+            ctx.font = `${32 * ctx_zoom}px "Microsoft YaHei"`;
+            ctx.fillStyle = '#111111';
+            ctx.fillText(`今日`, (widthhalf + ctx_x + 50) * ctx_zoom, (heighthalf + ctx_y - 53) * ctx_zoom);
+            ctx.fillText(`分析`, (widthhalf + ctx_x + 50) * ctx_zoom, (heighthalf + ctx_y + 77) * ctx_zoom);
+            ctx.textAlign = 'right';
+            ctx.fillText(`操作`, (widthhalf + ctx_x - 48) * ctx_zoom, (heighthalf + ctx_y - 53) * ctx_zoom);
+            ctx.fillText(`事件`, (widthhalf + ctx_x - 48) * ctx_zoom, (heighthalf + ctx_y + 77) * ctx_zoom);
+
+            ctx.font = `32px "Microsoft YaHei"`;
+            ctx.fillText(`${message}`, width / 3, height / 3);
+
+
+            ctx.font = `${23 * ctx_zoom}px "Microsoft YaHei"`;
+            ctx.fillStyle = '#111111';
+            ctx.textAlign = 'right';
+            top = -150;
+            left = -150
+            ctx.fillText(`按住鼠标移动`, (widthhalf + ctx_x + left) * ctx_zoom, (heighthalf + ctx_y + top) * ctx_zoom);
+            ctx.fillText(`Ctrl+鼠标滚动 缩放`, (widthhalf + ctx_x + left) * ctx_zoom, (heighthalf + ctx_y + top + 50) * ctx_zoom);
+
+            ctx.strokeStyle = "#111111";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            let move = (widthhalf + ctx_x) * ctx_zoom;
+            if (move > width) move = width - 3
+            if (move < 0) move = 2
+            ctx.moveTo(move, 0);
+            ctx.lineTo(move, height);
+            ctx.stroke();
+            ctx.beginPath();
+            move = (ctx_y + heighthalf) * ctx_zoom;
+            if (move > height) move = height - 13
+            ctx.moveTo(0, move);
+            ctx.lineTo(width, move);
+            ctx.stroke();
+
+            ctx.restore();
+            ctx.save();
+        }
+
+        function getMessageSize(message, px = null) {
+            if (px !== null) {
+                let size = 0;
+                const rex = /[a-zA-Z\d\s\-\<\>\_\[\]\{\}\=\+\~\`\"\'\`\:\,\.\?\!\@\#\$\%\^\&\(\)\*\/]/;
+                for (let i = 0; i < message.length; i++) {
+                    if (rex.test(message[i])) size += px / 2;
+                    else size += px;
+                }
+                return size;
+            }
+            else return ctx.measureText(message).width + 120 * ctx_zoom;
+
+        }
+
+        function roundRect(x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        // 鼠标按下事件
+        canvas.addEventListener('mousedown', function (e) {
+            // 获取鼠标的初始位置
+            startX = e.clientX;
+            startY = e.clientY;
+            mobilex = 0;
+            mobiley = 0;
+
+            // 添加鼠标移动和鼠标释放事件监听器
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        // 鼠标移动事件
+        function onMouseMove(e) {
+            // 计算鼠标移动的距离
+            let zoom = 1;
+            if (ctx_zoom > 1) zoom = 2 - ctx_zoom;
+            else if (ctx_zoom < 1) zoom = (1 - ctx_zoom) * 5;
+            const x = (e.clientX - startX) * zoom;
+            const y = (e.clientY - startY) * zoom;
+            ctx_x += (x - mobilex);
+            ctx_y += (y - mobiley);
+            mobilex = (x);
+            mobiley = (y);
+
+            const nowframe = performance.now();
+            if (nowframe - lastframe >= fps) {
+                lastframe = nowframe;
+                updateCanvas();
+            }
+        }
+
+        // 鼠标释放事件
+        function onMouseUp(e) {
+            // 移除鼠标移动和鼠标释放事件监听器
+            updateCanvas();
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+
+        let zoomtimeout = null;
+        canvas.addEventListener('wheel', (e) => {
+            if (e.ctrlKey) e.preventDefault();
+            else return;
+            const value = -Math.sign(e.deltaY) * 0.1;
+            if (ctx_zoom >= 2 && ctx_zoom + value > ctx_zoom) return;
+            if (ctx_zoom <= 0.1 && ctx_zoom + value < ctx_zoom) return;
+            const now = performance.now();
+            // if (zoomtimeout != 0 && now - zoomtimeout < 300) return;
+            zoomtimeout = now;
+            ctx_zoom += value;
+            ctx_zoom = Number(ctx_zoom.toFixed(2));
+
+            // C ( canvas.width / 2, canvas.height / 2 )
+            // Now ( (ctx_x + new_ctx_x)*ctx_zoom, (ctx_y + new_ctx_y)*ctx_zoom )
+
+            /*
+                (ctx_x + new_ctx_x)*ctx_zoom = new_ctx_x + x
+                ctx_x = (new_ctx_x + x)/ctx_zoom - new_ctx_x
+            */
+
+            ctx_x = (canvas.width / 2) / ctx_zoom - canvas.width / 2
+            ctx_y = (canvas.height / 2) / ctx_zoom - canvas.height / 2
+            updateCanvas();
+        });
+
+        async function updateTodayZhiHu() {
+            try {
+                const res = await fetch(`/api/zhihu/news`);
+                if (!res.ok) throw new Error(res.statusText);
+                const t = await res.json();
+                t.forEach((v) => {
+                    v.title = `知乎：${v.title}    ${v.url}      `;
+                });
+                news_zhihu = news_zhihu.concat(t);
+                updateCanvas();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        async function updateTodayBiliBili() {
+            try {
+                const res = await fetch(`/api/bilibili/news`);
+                if (!res.ok) throw new Error(res.statusText);
+                const t = await res.json();
+                t.forEach((v) => {
+                    v.title = `哔哩哔哩：${v.title}    ${v.url}      `;
+                });
+                news_zhihu = news_zhihu.concat(t);
+                updateCanvas();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        async function updateTodayCookapk() {
+            try {
+                const res = await fetch(`/api/coolapk/news`);
+                if (!res.ok) throw new Error(res.statusText);
+                const t = await res.json();
+                t.forEach((v) => {
+                    v.title = "酷安：" + v.title;
+                    v.content = `${v.extra.info} https://www.coolapk.com/feed/${v.id}`;
+                });
+                news_zhihu = news_zhihu.concat(t);
+
+                updateCanvas();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        async function updateTodayAI() {
+            try {
+                const res = await fetch(`https://cengtuyin.24h.fyi/api/news?format=web`);
+                if (!res.ok) throw new Error(res.statusText);
+                const t = await res.text();
+                t.split("\n").forEach((v) => {
+                    if (v == "" || v == "新闻列表" || v == "全局总结") return;
+                    aiday = aiday.concat(v);
+                });
+
+                updateCanvas();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+
+        window.onresize = () => {
+            Init(0b01);
+            updateCanvas();
+        };
+        Init();
+        updateCanvas();
+        updateTodayAI();
+        updateTodayZhiHu();
+        updateTodayBiliBili();
+        updateTodayCookapk();
+    </script>
+</body>
+
+</html>

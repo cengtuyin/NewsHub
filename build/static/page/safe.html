@@ -1,0 +1,246 @@
+<style>
+    ul {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 16px 0 16px 0;
+        border-radius: 16px;
+        overflow-y: auto;
+    }
+
+    ul>li {
+        width: auto;
+        cursor: pointer;
+        animation: fade 0.3s;
+        animation-delay: calc(var(--i) * 30ms);
+        animation-fill-mode: forwards;
+    }
+
+    Card {
+        height: fit-content;
+        background-color: var(--Color-Tools-Background);
+    }
+
+    Card>h3 {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    Card>p {
+        font-size: 16px;
+    }
+
+    CardImage {
+        height: fit-content;
+        background-color: var(--Color-Tools-Background);
+        display: flex;
+        align-items: center;
+    }
+
+    CardImage>img {
+        width: 68px;
+        height: 68px;
+        margin-right: 8px;
+    }
+
+    CardImage>div>h3 {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    CardImage>div>p {
+        font-size: 16px;
+    }
+
+    .follow-tooltip {
+        position: fixed;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        pointer-events: none;
+        z-index: 10000;
+        white-space: nowrap;
+        transition: opacity 0.2s;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .follow-tooltip.hidden {
+        display: none;
+    }
+</style>
+
+<div
+    style="width: -webkit-fill-available;min-height: -webkit-fill-available;display: flex;flex-wrap: wrap;align-content: flex-start;gap: 16px;">
+    <div style="display: flex;gap: 16px;width: -webkit-fill-available;">
+        <Card class="Card" style="width: -webkit-fill-available;flex: 1;">
+            <h3 style="margin-bottom: 6px;">配置</h3>
+            <p style="margin-bottom: 16px;">启用功能</p>
+            <div style="display: flex;flex-direction: column;gap: 16px;margin-bottom: 16px;">
+                <ul style="height: -webkit-fill-available;display: flex;flex-direction: row;flex-wrap: wrap;">
+                    <li style="--i: 0;">
+                        <input type="checkbox" checked>
+                        <label for="male">频率限制</label>
+                    </li>
+                    <li style="--i: 1;">
+                        <input type="checkbox" checked>
+                        <label for="male">白名单</label>
+                    </li>
+                </ul>
+            </div>
+            <CardButtons id="ModelSaveMenu" hide>
+                <button onclick="this.parentNode.setAttribute('hide','')" unable>撤销</button>
+                <button onclick="this.parentNode.setAttribute('hide','')">保存</button>
+            </CardButtons>
+        </Card>
+        <Card class="Card" style="width: -webkit-fill-available;flex: 1;max-height: 250px;">
+            <h3 style="margin-bottom: 6px;">功能</h3>
+            <p style="margin-bottom: 16px;">喵/Meow/Nay/Miau/Miao</p>
+            <div style="height: 250px;display: flex;flex-direction: column;gap: 16px;margin-bottom: 16px;">
+                <ul style="height: calc(250px - 16px * 2);display: flex;flex-direction: row;flex-wrap: wrap;">
+                    <li style="--i: 0;"><button onclick="openOption(this)">历史请求</button></li>
+                    <li style="--i: 1;"><button onclick="openOption(this)">黑名单</button></li>
+                </ul>
+            </div>
+        </Card>
+    </div>
+</div>
+
+<script>
+    var NowPage = "AIANSWER";
+    var WordInfo = {};
+    var LinkWord = {};
+    var UI_dialog = document.getElementById("dialog");
+    var UI_inputs = document.querySelectorAll("input[id]");
+
+    function InitPage() {
+        UI_inputs.forEach((element) => {
+            loadSetting(element.id, element);
+        });
+    }
+
+    function UnPage() {
+        NowPage = null;
+        WordInfo = null;
+        LinkWord = null;
+        UI_dialog = null;
+        UI_inputs = null;
+    }
+
+    function openOption(element) {
+        switch (element.innerText) {
+            case '搜索 （挑选 + AI）':
+
+                break;
+
+            default:
+                break;
+        }
+        let body = `<OptionsCard>
+            <Options>
+                <hOption style="--i: 0;" active>
+                    <img src="/favorite.ico" />
+                    <p>Option 1</p>
+                </hOption>
+                <hOption style="--i: 1;">
+                    <p>Option 2</p>
+                </hOption>
+                <hOption style="--i: 2;">
+                    <p>Option 3</p>
+                </hOption>
+            </Options>
+            <Views>
+                <View style="--i: 0;">
+                    <div
+                        style="width: 100%;display: flex;justify-content: center;align-items: center;flex-direction: column;">
+                        <h3>0 等等开发者吧 (っ °Д °;)っ</h3>
+                        <a href="https://github.com/cengtuyin/NewsHub/issues" target="_blank">Github Issues</a>
+                    </div>
+                </View>
+                <View style="--i: 1;" hide>
+                    <div
+                        style="width: 100%;display: flex;justify-content: center;align-items: center;flex-direction: column;">
+                        <h3>1 等等开发者吧 (っ °Д °;)っ</h3>
+                        <h3>0 等等开发者吧 (っ °Д °;)っ</h3>
+                        <h3>0 等等开发者吧 (っ °Д °;)っ</h3>
+                        <h3>0 等等开发者吧等等开发者吧等等开发者吧等等开发者吧等等开发者吧等等开发者吧等等开发者吧等等开发者吧等等开发者吧等等开发者吧等等开发者吧等等开发者吧等等开发者吧 (っ °Д °;)っ</h3>
+                        <h3>0 等等开发者吧 (っ °Д °;)っ</h3>
+                        <h3>0 等等开发者吧 (っ °Д °;)っ</h3>
+                        <h3>0 等等开发者吧 (っ °Д °;)っ</h3>
+                        <h3>0 等等开发者吧 (っ °Д °;)っ</h3>
+                        <a href="https://github.com/cengtuyin/NewsHub/issues" target="_blank">Github Issues</a>
+                    </div>
+                </View>
+                <View style="--i: 2;" hide>
+                    <div
+                        style="width: 100%;display: flex;justify-content: center;align-items: center;flex-direction: column;">
+                        <h3>2 等等开发者吧 (っ °Д °;)っ</h3>
+                        <h3>0 等等开发者吧 (っ °Д °;)っ</h3>
+                        <h3>0 等等开发者吧 (っ °Д °;)っ</h3>
+                        <a href="https://github.com/cengtuyin/NewsHub/issues" target="_blank">Github Issues</a>
+                    </div>
+                </View>
+            </Views>
+        </OptionsCard>`;
+        clickOption(element, body);
+        _initPage();
+    }
+
+    function clickOption(element, html) {
+        if (NowPage != "AIANSWER") return;
+        UI_dialog.innerHTML = `<Card style="max-width: 70vw;max-height: 60vh;" class="Card"><h3 style="color: var(--Color-Header-Icon-Unpress);margin-bottom: 16px;">Title</h3></Card>`;
+        UI_dialog.children[0].children[0].innerText = `${element.innerText}`;
+        UI_dialog.children[0].appendChild(document.createRange().createContextualFragment(html).firstChild);
+        UI_dialog.children[0].children[1].onclick = (e) => {
+            e.stopPropagation();
+        };
+        UI_dialog.onclick = () => {
+            UI_dialog.classList.add("hide");
+            UI_dialog.offsetHeight;
+            setTimeout(() => {
+                UI_dialog.style.display = "none";
+            }, 300);
+        }
+        UI_dialog.children[0].style.viewTransitionName = 'dialog'
+        element.style.viewTransitionName = 'dialog'
+        if (document.startViewTransition) {
+            document.startViewTransition(() => {
+                UI_dialog.style.display = "flex";
+                UI_dialog.offsetHeight;
+                UI_dialog.classList.remove("hide");
+                element.style.viewTransitionName = '';
+            });
+        } else {
+            UI_dialog.style.display = "flex";
+            UI_dialog.offsetHeight;
+            UI_dialog.classList.remove("hide");
+            element.style.viewTransitionName = '';
+        }
+    }
+
+    async function loadSetting(key, element = null) {
+        if (element != null) {
+            element.value = "-- 加载中，稍等片刻 --";
+            element.disabled = true;
+        }
+        try {
+            const res = await fetch(`/api/setting?key=${key}`);
+            if (!res.ok) throw new Error(res.statusText);
+            const t = await res.json();
+            if (t.success) {
+                element.disabled = false;
+                if (element == null) UI_inputs.forEach((element) => {
+                    if (element.id == key) {
+                        element.value = t.data;
+                    }
+                });
+                else element.value = t.data;
+            } else {
+                console.error(t.message);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+</script>

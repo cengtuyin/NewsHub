@@ -1,0 +1,699 @@
+/*  NORMAL.CSS
+*   全局通用设计元素
+*   Made By Rexxrt
+*/
+
+:root {
+    --Color-Background: rgba(230, 231, 235, 0.765);
+    --Color-Background-B: rgba(215, 215, 215, 0.625);
+
+    --Color-Header-Background: rgba(255, 255, 255, 0.785);
+    --Color-Header-BackgroundNull: rgba(255, 255, 255, 0);
+    --Color-Header-Icon: rgba(69, 71, 77, 0.985);
+    --Color-Header-Icon-Unpress: rgba(10, 10, 10, 0.765);
+    --Color-Header-Input-Text-Background: rgba(250, 250, 250, 0.285);
+
+    --Color-Tools-Background: rgba(230, 231, 235, 0.765);
+    --Color-Tools-Background-B: rgb(230, 231, 235);
+
+    --Color-Bottom-Background: rgb(220, 220, 220);
+    --Color-Bottom-Icon: rgb(0, 0, 0);
+
+    --Color-Input-Text: rgba(64, 64, 64, 0.985);
+    --Color-Input-Text2: rgba(211, 211, 211, 0.785);
+    --Color-Input-Text-Press: rgba(10, 10, 10, 0.985);
+    --Color-Input-Text-Background: rgba(240, 240, 240, 0.785);
+    --Color-Input-Text-Background-Press: rgba(255, 255, 255, 0.785);
+    --Color-Input-Text-Background-Press2: rgba(60, 60, 60, 0.785);
+    --Color-Card-Button-Background: rgba(120, 120, 120, 0.985);
+    --Color-Card-Button-Background2: rgba(250, 250, 250, 0.985);
+
+    --Color-Font-Background: rgb(10, 10, 10);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --Color-Background: #101010;
+        --Color-Background-B: rgba(10, 10, 10, 0.765);
+
+        --Color-Header-Background: rgba(0, 0, 0, 0.785);
+        --Color-Header-BackgroundNull: rgba(255, 255, 255, 0);
+        --Color-Header-Icon: rgba(220, 220, 220, 0.765);
+        --Color-Header-Icon-Unpress: rgba(235, 235, 235, 0.765);
+        --Color-Header-Input-Text-Background: rgba(120, 120, 120, 0.285);
+
+        --Color-Tools-Background: rgba(18, 18, 18, 0.765);
+        --Color-Tools-Background-B: rgb(18, 18, 18);
+
+        --Color-Bottom-Background: rgb(46, 46, 46);
+        --Color-Bottom-Icon: rgb(180, 180, 180);
+
+        --Color-Input-Text: rgba(211, 211, 211, 0.985);
+        --Color-Input-Text2: rgba(211, 211, 211, 0.785);
+        --Color-Input-Text-Press: rgba(240, 240, 240, 0.985);
+        --Color-Input-Text-Background: rgba(20, 20, 20, 0.785);
+        --Color-Input-Text-Background-Press: rgba(80, 80, 80, 0.785);
+        --Color-Input-Text-Background-Press2: rgba(60, 60, 60, 0.785);
+        --Color-Card-Button-Background: rgba(120, 120, 120, 0.985);
+        --Color-Card-Button-Background2: rgba(60, 60, 60, 0.985);
+
+        --Color-Font-Background: rgb(10, 10, 10);
+    }
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+    background-color: var(--Color-Header-Icon);
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    background-color: var(--Color-Tools-Background);
+}
+
+body {
+    margin: 0;
+    overflow-x: hidden;
+    background-color: var(--Color-Background);
+}
+
+* {
+    user-select: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+li,
+label {
+    margin: 0;
+    color: var(--Color-Header-Icon);
+    cursor: default;
+}
+
+p,
+span,
+li,
+label {
+    color: var(--Color-Header-Icon-Unpress)
+}
+
+input[type=text],
+input[type=password],
+textarea {
+    height: fit-content;
+    min-height: 16px;
+    padding: 8px;
+    outline: none;
+    border-radius: 8px;
+    user-select: text;
+    color: var(--Color-Input-Text);
+    background-color: var(--Color-Input-Text-Background-Press);
+    border: solid 1px var(--Color-Input-Text-Background);
+}
+
+input[type=text]:focus,
+input[type=password]:focus,
+textarea:focus {
+    color: var(--Color-Input-Text-Press);
+    border: solid 1px var(--Color-Input-Text-Background-Press2);
+}
+
+button {
+    border: none;
+    outline: none;
+    border-radius: 16px;
+    padding: 8px 16px 8px 16px;
+    color: var(--Color-Input-Text);
+    background-color: var(--Color-Card-Button-Background2);
+    filter: brightness(100%);
+    transition: filter 0.28s ease;
+    white-space: nowrap;
+}
+
+button:hover {
+    filter: brightness(130%);
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+a {
+    color: var(--Color-Header-Icon);
+}
+
+ul {
+    width: 100%;
+    padding: 0;
+    list-style-type: none;
+    display: grid;
+    align-content: start;
+    gap: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--Color-Background-B) transparent;
+    white-space: inherit;
+}
+
+ul>li {
+    width: calc(100% - 32px);
+    border-radius: 16px;
+    padding: 8px 16px;
+    background-color: var(--Color-Background);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fade 0.5s;
+    animation-delay: calc(var(--i) * 0.1s);
+    animation-fill-mode: forwards;
+}
+
+ul>li:has(button) {
+    padding: 0;
+    background-color: transparent;
+}
+
+ul>li:has(input[type=checkbox]) {
+    /* white-space: nowrap; */
+    background-color: var(--Color-Header-Input-Text-Background);
+    filter: brightness(100%);
+    transition: filter 0.28s ease;
+}
+
+ul>li:has(input[type=checkbox]):hover {
+    filter: brightness(130%);
+}
+
+ul>li>input[type=checkbox] {
+    pointer-events: none;
+}
+
+@keyframes fade {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+hr {
+    margin: 16px 0 16px 0;
+    border: 1px dashed var(--Color-Input-Text-Background-Press);
+}
+
+
+Header {
+    width: 84%;
+    height: 68px;
+    padding: 0 8% 0 8%;
+    display: flex;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    backdrop-filter: blur(0px);
+    background-color: var(--Color-Header-BackgroundNull);
+    --webkit-backdrop-filter: blur(28px);
+    box-shadow: 0 2px 1px rgba(0, 0, 0, 0);
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
+    z-index: 114514;
+}
+
+.Header_Sub {
+    backdrop-filter: blur(28px);
+    box-shadow: 0 2px 1px rgba(0, 0, 0, 0.08);
+    background-color: var(--Color-Header-Background);
+}
+
+Header>Icon {
+    height: 35px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+Header>Icon p,
+Tools>Tool h1,
+Tools>Tool h2,
+Tools>Tool h3,
+Tools>Tool h4,
+Tools>Tool h5,
+Tools>Tool h6,
+Tools>Tool p,
+Tools>Tool span,
+Tools>Tool li,
+Tools>div>Tool h1,
+Tools>div>Tool h2,
+Tools>div>Tool h3,
+Tools>div>Tool h4,
+Tools>div>Tool h5,
+Tools>div>Tool h6,
+Tools>div>Tool p,
+Tools>div>Tool span,
+Tools>div>Tool li,
+ul>li>label,
+button {
+    cursor: pointer;
+}
+
+Header>Icon>img {
+    width: 36px;
+    height: 36px;
+    margin-right: 8px;
+}
+
+Header>Icon>p {
+    font-size: 23px;
+    font-weight: 800;
+    color: var(--Color-Header-Icon);
+}
+
+Header>Tools {
+    width: -webkit-fill-available;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+Header>Tools>Tool {
+    height: 100%;
+    padding: 0 16px 0 16px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+Header>Tools>Tool>img {
+    width: 28px;
+    height: 28px;
+    margin-right: 8px;
+}
+
+Header>Tools>Tool>p {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--Color-Header-Icon);
+}
+
+Main {
+    width: 64%;
+    min-height: calc(100vh - (68px + 16px));
+    padding: calc(68px + 16px) 18% 0 18%;
+    display: block;
+}
+
+body>Tools {
+    width: 186px;
+    height: calc(100vh - 68px);
+    margin-top: 68px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: var(--Color-Tools-Background);
+    backdrop-filter: blur(28px);
+    z-index: 114513;
+}
+
+body>Tools>div {
+    height: -webkit-fill-available;
+    padding-bottom: 81px;
+    overflow-y: auto;
+}
+
+body>Tools>div::-webkit-scrollbar {
+    width: 0px;
+}
+
+body>Tools>Tool,
+body>Tools>div>Tool {
+    width: calc(100% - 32px);
+    height: 65px;
+    padding: 0 16px 0 16px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.Icon {
+    /* font-size: 30px; */
+    overflow: hidden;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    margin-right: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--Color-Header-Icon);
+}
+
+body>Tools>Tool>img,
+body>Tools>div>Tool>img {
+    width: 28px;
+    height: 28px;
+    margin-right: 8px;
+}
+
+body>Tools>Tool>p,
+body>Tools>div>Tool>p {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--Color-Header-Icon);
+}
+
+
+Bottom {
+    width: 78%;
+    padding: 32px 11% 80px 11%;
+    display: block;
+    background-color: var(--Color-Bottom-Background);
+}
+
+Bottom>Level1 {
+    display: block;
+}
+
+Bottom>Level1>Icon {
+    height: 35px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+Bottom>Level1>Icon {
+    height: 35px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+Bottom>Level1>Icon>img {
+    width: 36px;
+    height: 36px;
+    margin-right: 8px;
+}
+
+Bottom>Level1>Icon>p {
+    font-size: 23px;
+    font-weight: 800;
+    color: var(--Color-Bottom-Icon);
+}
+
+Bottom>Level2 {
+    display: flex;
+}
+
+.Card {
+    border-radius: 16px;
+    padding: 16px;
+}
+
+Card input[type=text],
+Card input[type=password],
+Card textarea {
+    color: var(--Color-Input-Text);
+    background-color: var(--Color-Header-Input-Text-Background);
+}
+
+Card input[type=text]:focus,
+Card input[type=password]:focus,
+Card textarea:focus {
+    border: solid 1px var(--Color-Input-Text-Background-Press);
+}
+
+Card>hr {
+    margin: 16px -16px 16px -16px;
+}
+
+CardButtons {
+    max-height: 200px;
+    margin: 0 0 -16px 0;
+    padding: 16px 16px 16px 16px;
+    display: grid;
+    justify-content: end;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, auto);
+    gap: 16px;
+    outline: 2px dashed var(--Color-Input-Text-Background-Press);
+    border-radius: 0 0 16px 16px;
+    opacity: 1;
+    will-change: max-height, padding, outline-color, opacity;
+    transition: max-height 0.3s ease, padding 0.3s ease, outline-color 0.3s ease, opacity 0s ease;
+}
+
+CardButtons>* {
+    max-width: 230px;
+    max-height: 230px;
+    opacity: 1;
+    filter: blur(0px);
+    will-change: filter, opacity;
+    transition: filter 0.28s ease, opacity 0.28s ease;
+}
+
+CardButtons[hide] {
+    max-height: 0;
+    padding: 0;
+    opacity: 0;
+    outline-color: transparent;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease 0.1s, outline-color 0.6s ease 0.2s, opacity 0.1s ease 0.25s;
+}
+
+CardButtons[hide]>* {
+    opacity: 0;
+    filter: blur(2px);
+}
+
+Card>CardButtons {
+    margin: 0 -16px -16px -16px;
+}
+
+CardButtons>button {
+    overflow: hidden;
+    font-weight: 900;
+    border: 1px dashed var(--Color-Input-Text-Background-Press);
+    color: var(--Color-Input-Text);
+    background-color: var(--Color-Card-Button-Background2);
+    filter: brightness(100%);
+    cursor: pointer;
+    will-change: color, filter, opacity, max-width, max-height;
+    transition: color 0.3s ease, filter 0.28s ease, opacity 0.28s ease, max-width 0.1s ease, max-height 0.1s ease, padding 0.1s ease, transform 0.2s ease;
+}
+
+CardButtons>button[unable] {
+    font-weight: 900;
+    border: 1px dashed var(--Color-Input-Text-Background-Press2);
+    color: var(--Color-Input-Text);
+    background-color: transparent;
+}
+
+CardButtons>button[loading] {
+    color: transparent;
+    background-color: transparent;
+    max-width: 38px;
+    max-height: 38px;
+    padding: 8px;
+    border: 4px dashed var(--Color-Input-Text-Background-Press2);
+    border-radius: 100%;
+    animation: rotate 2s linear infinite;
+    transition: color 0.2s ease, background-color 0.28s ease, filter 0.28s ease, opacity 0.28s ease, max-width 0.1s ease, max-height 0.1s ease, padding 0.1s ease;
+    pointer-events: none;
+}
+
+CardButtons:has(button[loading]) button:not(button[loading]) {
+    width: 0;
+    padding: 0;
+    filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+CardButtons:has(button[loading]) {
+    height: 37px;
+    max-height: 37px;
+    gap: 0;
+    transition: gap 0.2s ease, max-height 0.3s ease, padding 0.3s ease, outline-color 0.3s ease, opacity 0s ease;
+}
+
+CardButtons[hide]:has(button[loading]) {
+    max-height: 0;
+    gap: 16px;
+    transition: max-height 0.3s ease, padding 0.3s ease 0.1s, outline-color 0.6s ease 0.2s, opacity 0.1s ease 0.25s, gap 0s ease;
+}
+
+CardButtons>button:hover {
+    filter: brightness(130%);
+}
+
+CardButtons>p {
+    max-width: 2000px;
+    opacity: 1;
+    filter: blur(0px);
+    margin-right: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: max-width 0.6s ease, opacity 0.3s, filter 0.3s ease;
+}
+
+CardButtons>p[hide] {
+    max-width: 0;
+    opacity: 0;
+    filter: blur(4px);
+    transition: max-width 0.6s ease, opacity 0.1s ease, filter 0.2s ease;
+}
+
+Card button {
+    background-color: var(--Color-Header-Input-Text-Background);
+}
+
+OptionsCard {
+    width: 100%;
+}
+
+OptionsCard>Options {
+    width: 100%;
+    height: 48px;
+    display: flex;
+    /* background-color: var(--Color-Tools-Background); */
+    white-space: nowrap;
+}
+
+Card OptionsCard>Options {
+    background-color: var(--Color-Header-Input-Text-Background);
+}
+
+OptionsCard>Options>hOption {
+    height: calc(100% - 8px * 2);
+    padding: 8px 16px 8px 16px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    filter: brightness(80%);
+    will-change: filter;
+    transition: filter 0.28s ease;
+    background-color: var(--Color-Header-Input-Text-Background);
+}
+
+OptionsCard>Options>hOption:hover {
+    filter: brightness(100%);
+}
+
+OptionsCard>Options>hOption[active] {
+    filter: brightness(130%);
+}
+
+OptionsCard>Options>hOption>img {
+    width: calc(48px - 8px * 2);
+    height: calc(48px - 8px * 2);
+    margin-right: 8px;
+}
+
+OptionsCard>Options>hOption>p {
+    font-weight: 700;
+    color: var(--Color-Header-Icon);
+}
+
+OptionsCard>Views {
+    width: 100%;
+    display: grid;
+    grid-auto-rows: 1fr;
+    overflow: hidden;
+}
+
+OptionsCard>Views>* {
+    grid-area: 1 / 1 / 1 / 1;
+}
+
+OptionsCard>Views>View {
+    width: 100%;
+    max-width: 1200px;
+    max-height: 1200px;
+    overflow-y: hidden;
+    opacity: 1;
+    filter: blur(0px);
+    will-change: max-width, max-height, opacity, filter;
+    transition: max-width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), max-height 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), filter 0.5s ease 0.1s, opacity 0.3s ease;
+    grid-auto-rows: 1fr;
+}
+
+OptionsCard>Views>View[hide] {
+    max-width: 0;
+    max-height: 0;
+    opacity: 0;
+    filter: blur(2px);
+}
+
+SettingSetect {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+SettingSetect>Options {
+    display: flex;
+    border-radius: 16px;
+    background-color: var(--Color-Header-Input-Text-Background);
+}
+
+SettingSetect>Options>hOption {
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    max-width: 200px;
+    padding: 8px 16px 8px 16px;
+    font-weight: 400;
+    color: var(--Color-Input-Text);
+    background-color: transparent;
+    filter: blur(0px) brightness(20%);
+    opacity: 1;
+    transition: opacity 0.1s ease, filter 0.4s ease, color 0.2s ease, max-width 0.2s ease, padding 0.2s ease;
+    cursor: pointer;
+}
+
+SettingSetect>Options>hOption:hover {
+    font-weight: 500;
+    color: var(--Color-Input-Text-Press);
+}
+
+SettingSetect>Options>hOption[hide] {
+    max-width: 0;
+    padding: 0;
+    filter: blur(2px);
+    opacity: 0;
+}
+
+SettingSetect>Options:has(hOption:hover)>hOption[hide] {
+    max-width: 200px;
+    padding: 8px;
+    filter: blur(0px) brightness(100%);
+    opacity: 1;
+}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>无权访问 | NewsHub</title>
+    <link rel="stylesheet" href="/src/css/normal.css">
+    <script type="text/javascript" src="/src/js/normal.js"></script>
+
+    <style>
+        Main {
+            min-height: 100vh;
+            padding: 0 18% 0 18%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <Header>
+        <Icon>
+            <img src="./favorite.ico" />
+            <p>NewsHub</p>
+        </Icon>
+    </Header>
+
+    <Main>
+        <div style="display: flex;flex-direction: column;justify-content: center;" class="Card">
+            <h3 style="margin-bottom: 16px;">您无权访问</h3>
+            <p id="message">稍后为您重定向至登录界面</p>
+        </div>
+    </Main>
+
+    <Bottom>
+        <Level1>
+            <Icon>
+                <img src="./favorite.ico" />
+                <p>NewsHub</p>
+            </Icon>
+            <p>Made By Rexxrt</p>
+        </Level1>
+        <Level2>
+
+        </Level2>
+    </Bottom>
+
+    <script>
+        const UI_message = document.getElementById("message");
+        const message = UI_message.innerText;
+
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => {
+                UI_message.innerText = `${message} ${8 - i}s`;
+            }, 1000 * i);
+        }
+        
+        setTimeout(() => {
+            window.location.href = "/login.html";
+        }, 1000 * 8);
+    </script>
+</body>
+
+</html>

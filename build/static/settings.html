@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>NewsHub | 设置</title>
+    <link href="/src/css/icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/src/css/normal.css">
+    <script type="text/javascript" src="/src/js/normal.js"></script>
+
+    <style>
+        body {
+            background-color: var(--Color-Tools-Background);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: var(--Color-Background);
+            }
+        }
+
+        Header {
+            width: calc(100% - 16px);
+            height: 68px;
+            padding: 0 16px 0 0;
+            background-color: var(--Color-Tools-Background);
+            backdrop-filter: blur(28px);
+            z-index: 1;
+        }
+
+        .Header_Sub {
+            box-shadow: none;
+            background-color: var(--Color-Tools-Background);
+        }
+
+        Body>Tools {
+            z-index: 1;
+        }
+
+        Icon {
+            padding-left: 16px;
+        }
+
+        Main {
+            width: calc(100% - 218px);
+            min-height: calc(100vh - 100px);
+            padding: 84px 16px 16px 202px;
+            display: flex;
+            opacity: 1;
+            animation-fill-mode: forwards;
+            will-change: transform, opacity;
+            transform-origin: bottom center;
+            transform: translateY(0) scaleY(1);
+            transition: transform 0.15s ease, opacity 0.15s ease;
+            position: absolute;
+            z-index: -1;
+        }
+
+        .Main_Hide {
+            opacity: 0;
+            transform: translateY(-4vh) scaleY(1.02);
+        }
+
+        .Main_Hide2 {
+            transition: none;
+            opacity: 0;
+            transform: translateY(0vh) scaleY(0.98);
+        }
+
+        .background_messages {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            contain: layout paint;
+            display: grid;
+            align-content: space-evenly;
+            justify-content: space-evenly;
+            align-items: center;
+            justify-items: center;
+            grid-template-columns: auto auto auto;
+            filter: blur(255px);
+            animation-fill-mode: forwards;
+        }
+
+        .background_messages>div:nth-child(1) {
+            animation: pulse5_b 50s infinite ease-in-out;
+        }
+
+        .background_messages>div:nth-child(2) {
+            animation: pulse5_b 50.2s infinite ease-in-out;
+        }
+
+        .background_messages>div:nth-child(3) {
+            animation: pulse5_b 50.4s infinite ease-in-out;
+        }
+
+        .background_messages>div:nth-child(4) {
+            animation: pulse5_b 50.6s infinite ease-in-out;
+        }
+
+        .background_messages>div:nth-child(5) {
+            animation: pulse5_b 50.2s infinite ease-in-out;
+        }
+
+        .background_messages>div:nth-child(6) {
+            animation: pulse5_b 60s infinite ease-in-out;
+        }
+
+        .background_messages>div:nth-child(7) {
+            animation: pulse5_b 60.2s infinite ease-in-out;
+        }
+
+        .background_messages>div:nth-child(8) {
+            animation: pulse5_b 50.2s infinite ease-in-out;
+        }
+
+        .background_messages>div:nth-child(9) {
+            animation: pulse5_b 60.6s infinite ease-in-out;
+        }
+
+        .background_messages>div {
+            width: 12rem;
+            height: 12rem;
+            z-index: -1;
+            contain: layout paint;
+            padding: 1em;
+            animation-fill-mode: forwards;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            transform-origin: center center;
+            transform: translateZ(0);
+            will-change: transform, opacity;
+            transform: translate3d(0, 0, 0) scale3d(1, 1, 1) rotate3d(0, 1, 1, 180deg);
+        }
+
+        @keyframes pulse5_b {
+
+            0% {
+                transform: rotate3d(0, 1, 1, 0deg);
+            }
+
+            50% {
+                transform: rotate3d(0, 1, 1, 720deg);
+            }
+
+            100% {
+                transform: rotate3d(0, 1, 1, 0deg);
+            }
+
+        }
+
+        dialog {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            opacity: 1;
+            backdrop-filter: blur(12px) brightness(60%);
+            will-change: transform, opacity;
+            transition: backdrop-filter 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease;
+            background: none;
+            border: none;
+        }
+
+        dialog.hide {
+            opacity: 0;
+            backdrop-filter: blur(0px) brightness(100%);
+        }
+
+        dialog>Card {
+            opacity: 1;
+            backdrop-filter: blur(28px);
+            transform: scale(1);
+            transition: opacity 0.3s ease, transform 0.4s ease;
+        }
+
+        dialog.hide>Card {
+            opacity: 0;
+            transform: scale(0);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .settingsbutton {
+            border-top: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+
+        @media (max-height: 585px) {
+            .settingsbutton {
+                border-top: inset 1px var(--Color-Header-Icon);
+                background-color: var(--Color-Tools-Background-B);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <Header>
+        <Icon>
+            <img src="./favorite.ico" />
+            <p>NewsHub</p>
+        </Icon>
+        <p id="VersionName" style="margin-left: 16px;white-space: nowrap;">Made by Rexxrt</p>
+        <Tools>
+            <Tool onclick="window.location.href='https\://github.com/cengtuyin/NewsHub'">
+                <p>Github</p>
+            </Tool>
+            <Tool onclick="test()">
+                <p>检查更新</p>
+            </Tool>
+        </Tools>
+    </Header>
+
+    <Tools>
+        <div>
+            <Tool onclick="loadPage('main')">
+                <Icon>analytics</Icon>
+                <p>数据面板</p>
+            </Tool>
+            <Tool onclick="loadPage('newssource')">
+                <Icon>newspaper</Icon>
+                <p>新闻源</p>
+            </Tool>
+            <Tool onclick="loadPage('aianswer')">
+                <Icon>question_answer</Icon>
+                <p>AI总结</p>
+            </Tool>
+            <Tool onclick="loadPage('push')">
+                <Icon>send_time_extension</Icon>
+                <p>推送</p>
+            </Tool>
+            <Tool onclick="loadPage('safe')">
+                <Icon>health_and_safety</Icon>
+                <p>安全</p>
+            </Tool>
+            <Tool onclick="loadPage('tasks')">
+                <Icon>task</Icon>
+                <p>计划任务</p>
+            </Tool>
+            <Tool onclick="loadPage('translate')">
+                <Icon>translate</Icon>
+                <p>自动翻译</p>
+            </Tool>
+        </div>
+        <Tool onclick="loadPage('settings')" class="settingsbutton">
+            <Icon>settings</Icon>
+            <p>设置</p>
+        </Tool>
+    </Tools>
+
+    <dialog id="dialog" class="dialog hide" style="display: none;"></dialog>
+
+    <div class="background_messages" style="animation-fill-mode: forwards;">
+        <div style="background-color: rgba(48, 214, 255, 0.52);"></div>
+        <div style="background-color: rgba(48, 214, 255, 0.52);"></div>
+        <div style="background-color: rgba(200, 200, 255, 0.52);"></div>
+        <div style="background-color: rgba(251, 255, 43, 0.52);"></div>
+        <div style="background-color: rgba(255, 69, 69, 0.52);">
+            <p style="text-align: center;">你瞅啥</p>
+        </div>
+        <div style="background-color: rgba(200, 200, 255, 0.52);"></div>
+        <div style="background-color: rgba(54, 255, 81, 0.52);"></div>
+        <div style="background-color: rgba(255, 69, 69, 0.52);"></div>
+        <div style="background-color: rgba(54, 255, 81, 0.52);"></div>
+    </div>
+    <div
+        style="position: fixed;top: 68px;left: 186px;width: 100%;height: calc(100vh - 68px);background-color: var(--Color-Background-B);border-radius: 16px 0 0 0;z-index:-1;">
+    </div>
+    <Main></Main>
+
+    <script>
+        const UI_Main = document.querySelector("Main");
+
+        function loadPage(tag) {
+            switch (tag) {
+                case 'main':
+                    document.title = "数据面板 | NewsHub"
+                    loadPageUrl('/page/main.html')
+                    break;
+                case 'newssource':
+                    document.title = "新闻源 | NewsHub"
+                    loadPageUrl('/page/newssource.html')
+                    break;
+                case 'aianswer':
+                    document.title = "AI总结 | NewsHub"
+                    loadPageUrl('/page/aianswer.html')
+                    break;
+                case 'push':
+                    document.title = "推送 | NewsHub"
+                    loadPageUrl('/page/push.html')
+                    break;
+                case 'safe':
+                    document.title = "安全 | NewsHub"
+                    loadPageUrl('/page/safe.html')
+                    break;
+                case 'tasks':
+                    document.title = "计划任务 | NewsHub"
+                    loadPageUrl('/page/tasks.html')
+                    break;
+                case 'translate':
+                    document.title = "自动翻译 | NewsHub"
+                    loadPageUrl('/page/translate.html')
+                    break;
+                case 'settings':
+                    document.title = "设置 | NewsHub"
+                    loadPageUrl('/page/settings.html')
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        let bannextpage = false;
+        let banpageanim = null;
+        async function loadPageUrl(url) {
+            if (bannextpage) return;
+            else bannextpage = true;
+            if (banpageanim != null) clearTimeout(banpageanim);
+            try {
+                UnPage();
+                InitPage = null;
+                UnPage = null;
+            } catch (error) {
+                console.error(error)
+            }
+            removeAllScripts();
+            function toast(message) {
+                return `<div style="width: 100%;display: flex;justify-content: center;align-items: center;flex-direction: column;"><h3>${message}</h3><a href="https://github.com/cengtuyin/NewsHub/issues">Github Issues</a></div>`;
+            }
+            let ok = 0;
+            // document.body.style.overflowY = 'hidden';
+            UI_Main.classList.add("Main_Hide");
+            setTimeout(() => {
+                if ((ok & 0b1000) == 0b1000) return;
+                else ok |= 0b1
+                UI_Main.innerHTML = toast("正在为你打开世界 （￣︶￣）↗");
+                UI_Main.classList.add("Main_Hide2");
+                UI_Main.classList.remove("Main_Hide");
+                setTimeout(() => {
+                    ok |= 0b10
+                    if ((ok & 0b1000) == 0b1000) return;
+                    UI_Main.classList.remove("Main_Hide2");
+                    setTimeout(() => {
+                        ok |= 0b100
+                    }, 150);
+                }, 150);
+            }, 150);
+            try {
+                const res = await fetch(`${url}`);
+                let data;
+                if (!res.ok) {
+                    switch (res.status) {
+                        case 400:
+                            loadPageUrl('/page/400.html');
+                            // throw new Error(`请求错误 (400): ${res.statusText}`);
+                            return;
+                        case 401:
+                            loadPageUrl('/page/401.html');
+                            // throw new Error(`未授权 (401): 请先登录`);
+                            return;
+                        case 403:
+                            loadPageUrl('/page/403.html');
+                            // throw new Error(`禁止访问 (403): 权限不足`);
+                            return;
+                        case 404:
+                            loadPageUrl('/page/404.html');
+                            // throw new Error(`页面不存在 (404): ${url}`);
+                            return;
+                        case 500:
+                            loadPageUrl('/page/500.html');
+                            // throw new Error(`服务器错误 (500): 内部服务器错误`);
+                            return;
+                        case 502:
+                            loadPageUrl('/page/502.html');
+                            // throw new Error(`网关错误 (502): 服务不可用`);
+                            return;
+                        case 503:
+                            loadPageUrl('/page/503.html');
+                            // throw new Error(`服务不可用 (503): 服务器维护中`);
+                            return;
+                        default:
+                            data = toast(`HTTP ${res.status}: ${res.statusText}`);
+                            // throwthrow new Error(`HTTP ${res.status}: ${res.statusText}`);
+                            return;
+                    }
+                } else data = await res.text();
+
+                ok |= 0b1000;
+                if ((ok & 0b100) == 0b100) UI_Main.classList.add("Main_Hide");
+                setTimeout(() => {
+                    UI_Main.classList.add("Main_Hide2");
+                    UI_Main.classList.remove("Main_Hide");
+                    setTimeout(() => {
+                        executeScripts(data, UI_Main)
+                        try {
+                            InitPage();
+                        } catch (error) {
+                            console.error(error)
+                        }
+                        _initPage();
+                        UI_Main.classList.remove("Main_Hide2");
+                        bannextpage = false;
+                        banpageanim = setTimeout(() => {
+                            document.body.style.overflowY = 'auto';
+                        }, 300);
+                    }, 150);
+                }, 150);
+            } catch (err) {
+                console.error(err);
+                switch (err.message) {
+                    case "Failed to fetch": err = "请检查网络状况 (´。＿。｀)"; break;
+                }
+                if ((ok & 0b100) == 0b100) UI_Main.classList.add("Main_Hide");
+                setTimeout(() => {
+                    UI_Main.classList.add("Main_Hide2");
+                    UI_Main.classList.remove("Main_Hide");
+                    setTimeout(() => {
+                        UI_Main.innerHTML = toast(`${err}`);
+                        UI_Main.classList.remove("Main_Hide2");
+                        bannextpage = false;
+                        banpageanim = setTimeout(() => {
+                            document.body.style.overflowY = 'auto';
+                        }, 300);
+                    }, 150);
+                }, 150);
+            }
+        }
+
+        // 卸载无效
+        let currentScripts = [];
+        function executeScripts(html, container) {
+            try {
+                removeAllScripts();
+                container.innerHTML = html;
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                        newScript.async = false;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    Array.from(oldScript.attributes).forEach(attr => {
+                        if (attr.name !== 'src' && attr.name !== 'textContent') {
+                            newScript.setAttribute(attr.name, attr.value);
+                        }
+                    });
+                    document.head.appendChild(newScript);
+                    currentScripts.push(newScript);
+                });
+            } catch (error) { }
+        }
+        function removeAllScripts() {
+            try {
+                currentScripts.forEach(script => {
+                    script.remove();
+                });
+                currentScripts = [];
+            } catch (error) { }
+        }
+
+        async function getInfo() {
+            try {
+                const res = await fetch(`/api/info`);
+                if (!res.ok) throw new Error(res.statusText);
+                const t = await res.json();
+                document.getElementById('VersionName').innerText = `${t.versionName}`;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        getInfo();
+        loadPage('push');
+    </script>
+</body>
+
+</html>

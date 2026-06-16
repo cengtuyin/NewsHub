@@ -1,0 +1,401 @@
+<style>
+    ul {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 16px 0 16px 0;
+        border-radius: 16px;
+        overflow-y: auto;
+    }
+
+    ul>li {
+        width: auto;
+        cursor: pointer;
+        animation: fade 0.3s;
+        animation-delay: calc(var(--i) * 3ms);
+        animation-fill-mode: forwards;
+    }
+
+    Card {
+        height: fit-content;
+        background-color: var(--Color-Tools-Background);
+    }
+
+    Card>h3 {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    Card>p {
+        font-size: 16px;
+    }
+
+    CardImage {
+        height: fit-content;
+        background-color: var(--Color-Tools-Background);
+        display: flex;
+    }
+
+    CardImage>img {
+        width: 68px;
+        height: 68px;
+        margin-right: 8px;
+    }
+
+    CardImage>div>h3 {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    CardImage>div>p {
+        font-size: 16px;
+    }
+
+    .follow-tooltip {
+        position: fixed;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        pointer-events: none;
+        z-index: 10000;
+        white-space: nowrap;
+        transition: opacity 0.2s;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .follow-tooltip.hidden {
+        display: none;
+    }
+</style>
+
+<div
+    style="width: -webkit-fill-available;min-height: -webkit-fill-available;display: flex;flex-wrap: wrap;align-content: flex-start;gap: 16px;">
+    <div style="display: flex;width: -webkit-fill-available;">
+        <div
+            style="width: max-content;min-width: 300px;display: grid;grid-auto-flow: row;gap: 16px;margin-right: 16px;">
+            <CardImage class="Card">
+                <Icon>calendar_month</Icon>
+                <div>
+                    <h3>已记录天数</h3>
+                    <p>0 天</p>
+                </div>
+            </CardImage>
+            <CardImage class="Card">
+                <Icon>visibility</Icon>
+                <div>
+                    <h3>总计访问数</h3>
+                    <p>0</p>
+                </div>
+            </CardImage>
+            <CardImage class="Card">
+                <Icon>token</Icon>
+                <div>
+                    <h3>Token用量</h3>
+                    <p>114514M</p>
+                </div>
+            </CardImage>
+            <CardImage class="Card">
+                <Icon>fork_left</Icon>
+                <div>
+                    <h3>分支量</h3>
+                    <p>0</p>
+                </div>
+            </CardImage>
+        </div>
+
+        <div style="width: -webkit-fill-available;display: grid;grid-auto-flow: column;gap: 16px;">
+            <Card style="height: -webkit-fill-available;max-height: calc((68px + 16px)*4);" class="Card">
+                <h3>词频</h3>
+                <p>所有新闻中词汇出现数量</p>
+                <div id="Analysis" style="width: 100%;height: calc(100% - 18px * 2 - 16px * 3);">
+                    <!--div
+                        style="width: 100%;height: -webkit-fill-available;display: flex;justify-content: center;align-items: center;flex-direction: column;">
+                        <h3>首次加载需要等一会，之后优先使用缓存喵</h3>
+                    </div-->
+                </div>
+            </Card>
+            <!--Card style="height: -webkit-fill-available;" class="Card">
+                <h3>Title</h3>
+                <p>Content</p>
+                <div
+                    style="width: 100%;height: -webkit-fill-available;display: flex;justify-content: center;align-items: center;flex-direction: column;">
+                    <h3>Meow</h3>
+                </div>
+            </Card-->
+        </div>
+    </div>
+    <Card class="Card" style="width: -webkit-fill-available;">
+        <h3 style="margin-bottom: 6px;">组合</h3>
+        <div id="LinkWord"
+            style="width: 100%;min-height: 250px;display: flex;height: calc(100% - 18px * 2 - 16px * 2 - 16px);">
+            <!--div style="width: 100%;display: flex;justify-content: center;align-items: center;flex-direction: column;">
+                <h3>排行榜</h3>
+            </div>
+            <div style="width: 100%;display: flex;justify-content: center;align-items: center;flex-direction: column;">
+                <h3>连续热点</h3>
+            </div-->
+        </div>
+    </Card>
+</div>
+
+<script>
+    var NowPage = "MAIN";
+    var WordInfo = {};
+    var LinkWord = {};
+    var UI_dialog = document.getElementById("dialog");
+
+    function InitPage() {
+        AddMaterialIconClasses(`CardImage>Icon`);
+        updateWordsCloud();
+    }
+
+    function UnPage() {
+        NowPage = null;
+        WordInfo = null;
+        LinkWord = null;
+        UI_dialog = null;
+    }
+
+    async function updateWordsCloud() {
+        try {
+            const res = await fetch(`/api/wordscloud?length=7`);
+            if (!res.ok) throw new Error(res.statusText);
+            const t = await res.json();
+            if (t.success) {
+                const ul = document.createElement('ul');
+                ul.style.display = "flex";
+                ul.style.flexWrap = "wrap";
+                let i = 0;
+                Object.entries(t.words)
+                    .sort((a, b) => b[1] - a[1]).forEach(([word, value], index) => {
+                        const p = document.createElement('li');
+                        p.innerText = `${word} - ${value}`;
+                        p.style.setProperty('--i', i++);
+                        p.onclick = () => {
+                            const ul2 = document.createElement('ul');
+                            ul2.style.maxWidth = "80vw";
+                            ul2.style.maxHeight = "60vh";
+                            let i2 = 0;
+                            WordInfo[word].forEach((v) => {
+                                const p = document.createElement('li');
+                                p.style.animationDelay = "calc(var(--i) * 38ms)";
+                                let content;
+                                try {
+                                    content = v.extra.hover;
+                                } catch (error) { }
+                                p.innerHTML = `${v.title}<br>${content && content != " " && v.title != content ? `- ${content}` : ""}`;
+                                p.onclick = () => {
+                                    window.open(v.url, "_blank");
+                                }
+                                p.style.setProperty('--i', i2++);
+                                ul2.appendChild(p);
+                            });
+                            if (NowPage != "MAIN") return;
+                            UI_dialog.innerHTML = `<Card class="Card"><h3 style="color: var(--Color-Header-Icon-Unpress);">Title</h3></Card>`;
+                            UI_dialog.children[0].children[0].innerText = word;
+                            UI_dialog.children[0].appendChild(ul2);
+                            UI_dialog.children[0].children[1].onclick = (e) => {
+                                e.stopPropagation();
+                            };
+                            UI_dialog.onclick = () => {
+                                UI_dialog.classList.add("hide");
+                                UI_dialog.offsetHeight;
+                                setTimeout(() => {
+                                    UI_dialog.style.display = "none";
+                                }, 300);
+                            }
+
+                            UI_dialog.children[0].style.viewTransitionName = 'dialog'
+                            p.style.viewTransitionName = 'dialog'
+                            if (document.startViewTransition) {
+                                document.startViewTransition(() => {
+                                    UI_dialog.style.display = "flex";
+                                    UI_dialog.offsetHeight;
+                                    UI_dialog.classList.remove("hide");
+                                    p.style.viewTransitionName = '';
+                                });
+                            } else {
+                                UI_dialog.style.display = "flex";
+                                UI_dialog.offsetHeight;
+                                UI_dialog.classList.remove("hide");
+                                p.style.viewTransitionName = '';
+                            }
+                        };
+                        ul.appendChild(p);
+                    });
+                if (NowPage != "MAIN") return;
+                document.getElementById("Analysis").innerHTML = ``;
+                document.getElementById("Analysis").appendChild(ul);
+                updateWordsCloud2();
+                updateLinkWords();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function updateWordsCloud2() {
+        try {
+            const res = await fetch(`/api/wordsearch2`);
+            if (!res.ok) throw new Error(res.statusText);
+            const t = await res.json();
+            if (t.success) {
+                Object.entries(t.words).forEach(([word, news]) => {
+                    let i = 0;
+                    news.forEach((thenew) => {
+                        news[i++] = t.news[thenew];
+                    })
+                });
+                WordInfo = t.words;
+                const c = document.getElementById("Analysis").children[0].children;
+                for (let i = 0; i < c.length; i++) {
+                    createWordofNews(c[i], WordInfo);
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    function createWordofNews(elem, source) {
+        let press = false;
+        const word = elem.innerText.slice(0, elem.innerText.indexOf(" - "));
+        const tooltip = document.createElement('div');
+        tooltip.className = 'follow-tooltip hidden';
+        UI_Main.appendChild(tooltip);
+        elem.addEventListener('mouseenter', async (e) => {
+            press = true;
+            if (word.replace(/ \| /gi, "|") in source) {
+                tooltip.textContent = `共有 ${source[word.replace(/ \| /gi, "|")].length} 篇使用`;
+                tooltip.classList.remove('hidden');
+                updatePosition(e);
+                return;
+            }
+            /*WordInfo[word] = false;
+            try {
+                const res = await fetch(`/api/wordsearch?word=${word}`);
+                if (!res.ok) throw new Error(res.statusText);
+                const t = await res.json();
+                if (t.success) {
+                    WordInfo[word] = t.news;
+                    if (press) {
+                        tooltip.textContent = `共有 ${WordInfo[word].length} 篇使用`;
+                        tooltip.classList.remove('hidden');
+                        updatePosition(e);
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }*/
+            updatePosition(e);
+        });
+        elem.addEventListener('mousemove', (e) => {
+            updatePosition(e);
+        });
+        elem.addEventListener('mouseleave', () => {
+            press = false;
+            tooltip.classList.add('hidden');
+        });
+        function updatePosition(e) {
+            const offsetX = 15;
+            const offsetY = 15;
+
+            let left = e.clientX + offsetX;
+            let top = e.clientY + offsetY;
+
+            // 防止超出右边界
+            if (left + tooltip.offsetWidth > window.innerWidth) {
+                left = e.clientX - tooltip.offsetWidth - offsetX;
+            }
+
+            // 防止超出下边界
+            if (top + tooltip.offsetHeight > window.innerHeight) {
+                top = e.clientY - tooltip.offsetHeight - offsetY;
+            }
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+        }
+    }
+
+    async function updateLinkWords() {
+        try {
+            const res = await fetch(`/api/wordsin?length=2`);
+            if (!res.ok) throw new Error(res.statusText);
+            const t = await res.json();
+            if (t.success) {
+                const ul = document.createElement('ul');
+                ul.style.display = "flex";
+                ul.style.flexWrap = "wrap";
+                let i = 0;
+                Object.entries(t.words)
+                    .sort((a, b) => b[1].length - a[1].length).forEach(([word, news], index) => {
+                        let ii = 0;
+                        news.forEach((thenew) => {
+                            news[ii++] = t.news[thenew];
+                        })
+                        LinkWord = t.words;
+                        const p = document.createElement('li');
+                        p.innerText = `${word.replace(/\|/gi, " | ")} - ${news.length}`;
+                        p.style.setProperty('--i', i++);
+                        createWordofNews(p, LinkWord);
+                        p.onclick = () => {
+                            const ul2 = document.createElement('ul');
+                            ul2.style.maxWidth = "80vw";
+                            ul2.style.maxHeight = "60vh";
+                            let i2 = 0;
+                            LinkWord[word].forEach((v) => {
+                                const p = document.createElement('li');
+                                p.style.animationDelay = "calc(var(--i) * 38ms)";
+                                let content;
+                                try {
+                                    content = v.extra.hover;
+                                } catch (error) { }
+                                p.innerHTML = `${v.title}<br>${content && content != " " && v.title != content ? `- ${content}` : ""}`;
+                                p.onclick = () => {
+                                    window.open(v.url, "_blank");
+                                }
+                                p.style.setProperty('--i', i2++);
+                                ul2.appendChild(p);
+                            });
+                            if (NowPage != "MAIN") return;
+                            UI_dialog.innerHTML = `<Card class="Card"><h3 style="color: var(--Color-Header-Icon-Unpress);">Title</h3></Card>`;
+                            UI_dialog.children[0].children[0].innerText = word.replace(/\|/gi, " | ");
+                            UI_dialog.children[0].appendChild(ul2);
+                            UI_dialog.onclick = () => {
+                                UI_dialog.classList.add("hide");
+                                UI_dialog.offsetHeight;
+                                setTimeout(() => {
+                                    UI_dialog.style.display = "none";
+                                }, 300);
+                            }
+
+                            UI_dialog.children[0].style.viewTransitionName = 'dialog'
+                            p.style.viewTransitionName = 'dialog'
+                            if (document.startViewTransition) {
+                                document.startViewTransition(() => {
+                                    UI_dialog.style.display = "flex";
+                                    UI_dialog.offsetHeight;
+                                    UI_dialog.classList.remove("hide");
+                                    p.style.viewTransitionName = '';
+                                });
+                            } else {
+                                UI_dialog.style.display = "flex";
+                                UI_dialog.offsetHeight;
+                                UI_dialog.classList.remove("hide");
+                                p.style.viewTransitionName = '';
+                            }
+                        };
+                        ul.appendChild(p);
+                    });
+                if (NowPage != "MAIN") return;
+                document.getElementById("LinkWord").innerHTML = ``;
+                document.getElementById("LinkWord").appendChild(ul);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+</script>
