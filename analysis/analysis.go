@@ -12,13 +12,14 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 	"unicode/utf8"
 )
 
 var (
-	WordsCloud   []string
+	WordsCloud   [][]string
 	newsnow2tmp  []any
 	newsnow2tmp2 []string
 	lastinsert   []int64 = []int64{0, 0}
@@ -32,24 +33,29 @@ func Init() {
 		if data, err := os.ReadFile(filepath.Join(config.AnalysisDir, "/wordscloud_ban.txt")); err == nil {
 			banword = strings.Split(string(data), "\n")
 		}
-		WordsCloud = strings.Split(string(data), "\n")
+		tmp := strings.Split(string(data), "\n")
 		banMap := make(map[string]bool)
 		for _, w := range banword {
 			banMap[strings.TrimSpace(w)] = true
 		}
-		for i := len(WordsCloud) - 1; i >= 0; i-- {
-			word := strings.TrimSpace(WordsCloud[i])
+		for i := len(tmp) - 1; i >= 0; i-- {
+			word := strings.TrimSpace(tmp[i])
 			if banMap[word] {
-				WordsCloud = append(WordsCloud[:i], WordsCloud[i+1:]...)
 				continue
 			}
-			if utf8.RuneCountInString(word) < 2 {
-				WordsCloud = append(WordsCloud[:i], WordsCloud[i+1:]...)
+			length := utf8.RuneCountInString(word)
+			if length < 2 {
+				continue
 			}
+			iii := len(WordsCloud)
+			for ; iii < length; iii++ {
+				WordsCloud = append(WordsCloud, []string{})
+			}
+			WordsCloud[length-1] = append(WordsCloud[length-1], word)
 		}
-		sort.SliceStable(WordsCloud, func(i, j int) bool {
+		/* sort.SliceStable(WordsCloud, func(i, j int) bool {
 			return utf8.RuneCountInString(WordsCloud[i]) > utf8.RuneCountInString(WordsCloud[j])
-		})
+		}) */
 		log.Printf("词云载入词汇 %d 条\n", len(WordsCloud))
 	} else {
 		log.Println("无法载入词云库 /analysis/wordscloud.txt")
@@ -80,15 +86,26 @@ func Words(length int) (map[string]int, error) {
 				}
 			}
 		}
+		var wg sync.WaitGroup
+		var mu sync.RWMutex
 		for _, v := range WordsCloud {
-			if v == "" || unicode.IsPunct(rune(v[0])) || unicode.IsSymbol(rune(v[0])) {
-				continue
-			}
-			i := strings.Count(strtmp, v)
-			if i > length {
-				rdata[v] = i
-			}
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for _, v2 := range v {
+					if v2 == "" || unicode.IsPunct(rune(v2[0])) || unicode.IsSymbol(rune(v2[0])) {
+						continue
+					}
+					i := strings.Count(strtmp, v2)
+					if i > length {
+						mu.Lock()
+						rdata[v2] = i
+						mu.Unlock()
+					}
+				}
+			}()
 		}
+		wg.Wait()
 		newsnow2tmp2 = []string{}
 		for k := range rdata {
 			newsnow2tmp2 = append(newsnow2tmp2, k)

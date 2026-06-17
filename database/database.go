@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	_ "modernc.org/sqlite" // 驱动名称为 "sqlite"
+	_ "modernc.org/sqlite"
 )
 
 var (

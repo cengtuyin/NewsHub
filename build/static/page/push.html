@@ -49,22 +49,25 @@
         <p style="margin-bottom: 16px;">选择你处理各项任务时使用的模型</p>
         <SettingSetect style="margin: 0 0 16px 0;">
             <Options>
-                <hOption>默认</hOption>
-                <hOption onclick="addModel(this)" hide>
+                <hOption tag="all">默认</hOption>
+                <hOption tag="+" onclick="addModel(this)" hide>
                     <p style="width: 32px;text-align: center;cursor: pointer;"> + </p>
                 </hOption>
             </Options>
         </SettingSetect>
-        <SettingSetect style="margin: 0 0 16px 0;">
+        <SettingSetect add2left="true" style="margin: 0 0 16px 0;">
             <p>类型</p>
             <Options>
                 <hOption>Webhook</hOption>
             </Options>
         </SettingSetect>
         <div style="width: 100%;display: grid;justify-content: start;gap: 16px;margin-bottom: 16px;">
-            <input id="ModelUrl" style="min-width: 340px;max-width: calc(-266px + 100vw);" type="text" placeholder="Url" />
-            <textarea id="Model" style="min-width: 240px;max-width: calc(-266px + 100vw);" type="text" placeholder="Header" ></textarea>
-            <textarea id="ModelKey" style="min-width: 460px;max-width: calc(-266px + 100vw);" type="text" placeholder="Body" ></textarea>
+            <input id="ModelUrl" style="min-width: 340px;max-width: calc(-266px + 100vw);" type="text"
+                placeholder="Url" />
+            <textarea id="Model" style="min-width: 240px;max-width: calc(-266px + 100vw);" type="text"
+                placeholder="Header"></textarea>
+            <textarea id="ModelKey" style="min-width: 460px;max-width: calc(-266px + 100vw);" type="text"
+                placeholder="Body"></textarea>
         </div>
         <CardButtons id="ModelSaveMenu" hide>
             <p hide>Message</p>
@@ -97,6 +100,10 @@
         option.setAttribute("hide", '');
         option.innerText = "NewModel";
         element.parentNode.appendChild(option);
+        element.parentNode.parentNode.scrollTo({
+            left: 114514,
+            behavior: 'smooth'
+        });
     }
 
     async function resetSettings(button) {

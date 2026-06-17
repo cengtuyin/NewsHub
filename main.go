@@ -18,19 +18,6 @@ import (
 	"strings"
 )
 
-// 定义数据结构
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Age  int    `json:"age"`
-}
-
-// 模拟数据库
-var users = []User{
-	{ID: "1", Name: "Alice", Age: 25},
-	{ID: "2", Name: "Bob", Age: 30},
-}
-
 func main() {
 	log.Println("NewsHub Start!")
 	log.Println("Made By Rexxrt.")

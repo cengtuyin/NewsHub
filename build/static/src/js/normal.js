@@ -88,6 +88,33 @@ function _initPage() {
             });
         });
     } catch (error) { }
+    try {
+        const list = document.querySelectorAll('SettingSetect');
+        list.forEach(item => {
+            const options_true = item.querySelectorAll('SettingSetect>Options')[0];
+            item.addEventListener('wheel', function (e) {
+                e.preventDefault();
+                this.scrollLeft += e.deltaY;
+            }, { passive: false });
+            options_true.addEventListener('click', function (e) {
+                if (e.target && e.target.matches('SettingSetect>Options>hOption,SettingSetect>Options>hOption>p,SettingSetect>Options>hOption>Icon,SettingSetect>Options>hOption>img')) {
+                    let option = !e.target.matches('SettingSetect>Options>hOption') ? e.target.parentNode : e.target;
+                    item.setect = option.getAttribute("tag");
+                    if (option.getAttribute("tag") == "+" && item.getAttribute("add2left") != "") {
+                        option = item.getAttribute("add2left") == "true" ? option.parentNode.firstElementChild : option.parentNode.lastElementChild;
+                    }
+                    options_true.querySelectorAll('SettingSetect>Options>hOption').forEach(ooption => {
+                        if (ooption == option) return;
+                        ooption.setAttribute('hide', '');
+                    });
+                    option.removeAttribute('hide');
+
+                    item.setect = option.getAttribute("tag");
+                    eval(`${item.getAttribute("onsetect").replace(/this/gi, "item")}`);
+                }
+            });
+        });
+    } catch (error) { }
 }
 
 

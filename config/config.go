@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"newshub/allstruct"
 	"os"
 	"path/filepath"
 	"slices"
 )
 
 var (
-	VersionName string = "v0.0.5"
-	VersionCode int    = 2026061600
+	VersionName string = "v0.0.6"
+	VersionCode int    = 2026061700
 
 	RunDir      string
 	DataBaseDir string = "/database"
@@ -24,9 +25,7 @@ var (
 	Logined      []string
 
 	Save2DBTime int64 = 60 * 15
-	Model       string
-	ModelUrl    string
-	ModelKey    string
+	Models      map[string]allstruct.ModelInfo
 
 	SourceZhihu    string = "https://orz.ai/api/v1/dailynews/multi?platforms=zhihu"
 	SourceBilibili string = "https://orz.ai/api/v1/dailynews/multi?platforms=bilibili"
@@ -55,14 +54,14 @@ func Init() {
 			if v, ok := fconfig["userpassword"].(string); ok {
 				UserPassword = v
 			}
-			if v, ok := fconfig["model"].(string); ok {
-				Model = v
-			}
-			if v, ok := fconfig["modelkey"].(string); ok {
-				ModelKey = v
-			}
-			if v, ok := fconfig["modelurl"].(string); ok {
-				ModelUrl = v
+			if v, ok := fconfig["models"].([]map[string]string); ok {
+				for _, v2 := range v {
+					var model allstruct.ModelInfo
+					model.Model = v2["model"]
+					model.Key = v2["key"]
+					model.Url = v2["url"]
+					Models[v2["name"]] = model
+				}
 			}
 		} else {
 			log.Println("无法解析配置 config.json")
@@ -81,9 +80,7 @@ func SaveSettings() {
 		"sourcenewsnow2": SourceNewsNow2,
 		"username":       UserName,
 		"userpassword":   UserPassword,
-		"model":          Model,
-		"modelkey":       ModelKey,
-		"modelurl":       ModelUrl,
+		"models":         Models,
 	}
 	if sdata, err := json.MarshalIndent(fconfig, "", "    "); err == nil {
 		os.WriteFile(configpath, sdata, 0755)

@@ -252,7 +252,7 @@
                         </View>
                     </Views>
                 </OptionsCard>`;
-                clickOption(element, body,"closebutton");
+                clickOption(element, body, "closebutton");
                 analsis_wordslink_smart();
                 break;
 
@@ -269,7 +269,7 @@
             case 0:
                 logmessage.innerHTML = `标记->整理->分析->汇总->呈现`;
                 try {
-                    const res = await fetch(`/api/wordsin?length=2`);
+                    const res = await fetch(`/api/wordsin?length=2&now=true`);
                     if (!res.ok) throw new Error(res.statusText);
                     const t = await res.json();
                     if (t.success) {
@@ -307,7 +307,7 @@
                         }
                         message[3] = {
                             "role": "user",
-                            "content": `概括每条新闻。需要确保信息完整。格式为每行“序号. 内容`
+                            "content": `概括每条新闻。确保重要信息不缺失。格式为每行“序号. 内容`
                         };
                         newmessage = await chat(message);
                         logmessage.innerHTML = `标记|->整理|->分析|->汇总->呈现`;
@@ -317,11 +317,12 @@
                         }
                         message[5] = {
                             "role": "user",
-                            "content": `根据重要性、影响力排序。不要修改新闻内容，不需要回答除新闻以外任何内容。使用简体中文回答。`
+                            "content": `根据重要性、影响力排序。不要修改新闻内容，不需要回答除新闻以外任何内容。使用简体中文回答。不要使用Markdown。`
                         };
                         newmessage = await chat(message);
                         logmessage.innerHTML = `标记|->整理|->分析|->汇总|->呈现`;
                         parentvoid = logmessage.parentNode;
+                        parentvoid.style.padding = "0";
                         parentvoid.children[0].remove();
                         logmessage.remove();
                         let ul = document.createElement("ul");
@@ -329,9 +330,11 @@
                         ul.style.overflowX = "auto";
                         const lines = newmessage.split("\n").filter(line => line.trim() !== "");
                         lines.forEach((line) => {
+                            let li = document.createElement("li");
                             let p = document.createElement("p");
                             p.innerText = line;
-                            ul.appendChild(p);
+                            li.appendChild(p);
+                            ul.appendChild(li);
                         });
                         parentvoid.appendChild(ul);
                     } else {

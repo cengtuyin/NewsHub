@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/big"
 	"net/http"
+	"newshub/allstruct"
 	"newshub/analysis"
 	"newshub/config"
 	"newshub/model"
@@ -110,6 +111,9 @@ func GetNewsNow(w http.ResponseWriter, r *http.Request) {
 
 func GetNewsNow2(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	if r.URL.Query().Get("now") != "" {
+		LastNewsNow2Data = []byte{}
+	}
 	if len(LastNewsNow2Data) != 0 {
 		w.Write(LastNewsNow2Data)
 	}
@@ -154,6 +158,9 @@ func WordsCloud(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Get("length") == "" {
 		returnMessage(w, false, "需要GET参数[length]")
 		return
+	}
+	if r.URL.Query().Get("now") != "" {
+		LastWordsCloudData = []byte{}
 	}
 	if len(LastWordsCloudData) != 0 {
 		w.Write(LastWordsCloudData)
@@ -283,7 +290,7 @@ func UpdateSettings(w http.ResponseWriter, r *http.Request) {
 			returnMessage(w, false, "需要GET参数[keys]")
 			return
 		}
-		var klist []string
+		var klist []any
 		if err := json.Unmarshal([]byte(keys), &klist); err != nil {
 			returnMessage(w, false, "提交的数据错误")
 			return
@@ -293,25 +300,35 @@ func UpdateSettings(w http.ResponseWriter, r *http.Request) {
 		var i int
 		for i = 0; i < len(klist); i++ {
 			key := klist[i]
-			if key == "" {
-				continue
-			}
-			switch key {
-			case "Save2DBTime":
-				rdata[key] = config.Save2DBTime
-			case "SourceNewsNow":
-				rdata[key] = config.SourceNewsNow
-			case "SourceNewsNow2":
-				rdata[key] = config.SourceNewsNow2
-			case "Model":
-				rdata[key] = config.Model
-			case "ModelKey":
-				rdata[key] = config.ModelKey
-			case "ModelUrl":
-				rdata[key] = config.ModelUrl
-			default:
-				returnMessage(w, false, "不受支持的[key]")
-				return
+			if keys, ok := key.([]string); ok {
+				switch keys[0] {
+				case "Models":
+					rdata["Models"] = []map[string]string{}
+					for _, v := range keys {
+						rdatas := make(map[string]string)
+						if v != keys[0] {
+							rdatas["Url"] = config.Models[v].Url
+							rdatas["Key"] = config.Models[v].Key
+							rdatas["Model"] = config.Models[v].Model
+						}
+						rdata["Models"] = append(rdata["Models"].([]map[string]string), rdatas)
+					}
+				default:
+					returnMessage(w, false, "不受支持的[key]")
+					return
+				}
+			} else if key, ok := key.(string); ok && key != "" {
+				switch key {
+				case "Save2DBTime":
+					rdata[key] = config.Save2DBTime
+				case "SourceNewsNow":
+					rdata[key] = config.SourceNewsNow
+				case "SourceNewsNow2":
+					rdata[key] = config.SourceNewsNow2
+				default:
+					returnMessage(w, false, "不受支持的[key]")
+					return
+				}
 			}
 		}
 		if data, err := json.Marshal(map[string]any{
@@ -329,60 +346,64 @@ func UpdateSettings(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer r.Body.Close()
-		t, ok := data["keys"].([]any)
+		klist, ok := data["keys"].([]any)
 		if !ok {
 			returnMessage(w, false, "需要POST&JSON参数[keys]")
 			return
 		}
-		klist := make([]string, len(t))
-		for _, v := range t {
-			if v2, ok := v.(string); ok {
-				klist = append(klist, v2)
-			}
-		}
-		t, ok = data["values"].([]any)
+		vlist, ok := data["values"].([]any)
 		if !ok {
 			returnMessage(w, false, "需要POST&JSON参数[values]")
 			return
-		}
-		vlist := make([]any, len(t))
-		for _, v := range t {
-			vlist = append(vlist, v)
 		}
 		var i int
 		for i = 0; i < len(klist); i++ {
 			key := klist[i]
 			value := vlist[i]
-			if key == "" {
-				continue
-			}
-			switch key {
-			case "Save2DBTime":
-				if target, ok := value.(float64); ok {
-					config.Save2DBTime = int64(target)
+			if keys, ok := key.([]string); ok {
+				switch keys[0] {
+				case "Models":
+					values := value.([]map[string]string)
+					for i, v := range keys {
+						var modelinfo allstruct.ModelInfo
+						if v != keys[0] {
+							if vvv, ok := values[i]["Url"]; ok {
+								modelinfo.Url = vvv
+							}
+							if vvv, ok := values[i]["Key"]; ok {
+								modelinfo.Key = vvv
+							}
+							if vvv, ok := values[i]["Model"]; ok {
+								modelinfo.Model = vvv
+							}
+						}
+						config.Models[values[i]["Name"]] = modelinfo
+					}
 					config.SaveSettings()
-				} else {
-					returnMessage(w, false, key+"参数[value]需要为整数")
+				default:
+					returnMessage(w, false, "不受支持的[key]")
 					return
 				}
-			case "SourceNewsNow":
-				config.SourceNewsNow = value.(string)
-				config.SaveSettings()
-			case "SourceNewsNow2":
-				config.SourceNewsNow2 = value.(string)
-				config.SaveSettings()
-			case "Model":
-				config.Model = value.(string)
-				config.SaveSettings()
-			case "ModelKey":
-				config.ModelKey = value.(string)
-				config.SaveSettings()
-			case "ModelUrl":
-				config.ModelUrl = value.(string)
-				config.SaveSettings()
-			default:
-				returnMessage(w, false, "不受支持的[key]:"+key)
-				return
+			} else if key, ok := key.(string); ok && key != "" {
+				switch key {
+				case "Save2DBTime":
+					if target, ok := value.(float64); ok {
+						config.Save2DBTime = int64(target)
+						config.SaveSettings()
+					} else {
+						returnMessage(w, false, key+"参数[value]需要为整数")
+						return
+					}
+				case "SourceNewsNow":
+					config.SourceNewsNow = value.(string)
+					config.SaveSettings()
+				case "SourceNewsNow2":
+					config.SourceNewsNow2 = value.(string)
+					config.SaveSettings()
+				default:
+					returnMessage(w, false, "不受支持的[key]:"+key)
+					return
+				}
 			}
 		}
 		returnMessage(w, true, "修改成功")
@@ -450,12 +471,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 func Chat(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
+		smodel := r.URL.Query().Get("model")
+		if smodel == "" {
+			returnMessage(w, false, "需要GET参数[model]")
+			return
+		}
 		message := r.URL.Query().Get("message")
 		if message == "" {
 			returnMessage(w, false, "需要GET参数[message]或POST&JSON（ChatAPI风格）")
 			return
 		}
-		rdata, err := model.Chat([]map[string]string{
+		rdata, err := model.Chat(smodel, []map[string]string{
 			{
 				"role":    "user",
 				"content": message,
@@ -467,13 +493,18 @@ func Chat(w http.ResponseWriter, r *http.Request) {
 		}
 		returnData(w, true, rdata)
 	} else {
+		smodel := r.URL.Query().Get("model")
+		if smodel == "" {
+			returnMessage(w, false, "需要GET参数[model]")
+			return
+		}
 		var data []map[string]string
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 			returnMessage(w, false, "提交的数据错误")
 			return
 		}
 		defer r.Body.Close()
-		rdata, err := model.Chat(data)
+		rdata, err := model.Chat(smodel, data)
 		if err != nil {
 			returnMessage(w, false, err.Error())
 			return

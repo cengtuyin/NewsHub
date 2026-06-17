@@ -27,6 +27,7 @@
     --Color-Input-Text-Background-Press2: rgba(60, 60, 60, 0.785);
     --Color-Card-Button-Background: rgba(120, 120, 120, 0.985);
     --Color-Card-Button-Background2: rgba(250, 250, 250, 0.985);
+    --Color-Card-Setect: rgba(32, 164, 255, 0.985);
 
     --Color-Font-Background: rgb(10, 10, 10);
 }
@@ -56,6 +57,7 @@
         --Color-Input-Text-Background-Press2: rgba(60, 60, 60, 0.785);
         --Color-Card-Button-Background: rgba(120, 120, 120, 0.985);
         --Color-Card-Button-Background2: rgba(60, 60, 60, 0.985);
+        --Color-Card-Setect: rgba(32, 164, 255, 0.985);
 
         --Color-Font-Background: rgb(10, 10, 10);
     }
@@ -658,6 +660,11 @@ SettingSetect {
     overflow-y: hidden;
 }
 
+SettingSetect::-webkit-scrollbar {
+    width: 2px;
+    background-color: transparent;
+}
+
 SettingSetect>Options {
     display: flex;
     border-radius: 16px;
@@ -673,7 +680,7 @@ SettingSetect>Options>hOption {
     font-weight: 400;
     color: var(--Color-Input-Text);
     background-color: transparent;
-    filter: blur(0px) brightness(20%);
+    filter: blur(0px) brightness(100%);
     opacity: 1;
     transition: opacity 0.1s ease, filter 0.4s ease, color 0.2s ease, max-width 0.2s ease, padding 0.2s ease;
     cursor: pointer;
@@ -696,4 +703,8 @@ SettingSetect>Options:has(hOption:hover)>hOption[hide] {
     padding: 8px;
     filter: blur(0px) brightness(100%);
     opacity: 1;
+}
+
+SettingSetect>Options:has(hOption:hover)>hOption:not([hide]) {
+    color: var(--Color-Card-Setect);
 }

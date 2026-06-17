@@ -1,5 +1,9 @@
 # 请输入文本
 
+# * text=auto eol=lf
+# *.exe binary
+# *.dll binary
+
 build/config.json
 build/database/*.db
 build/newshub.exe
