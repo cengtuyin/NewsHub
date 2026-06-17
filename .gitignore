@@ -2,3 +2,4 @@
 
 build/config.json
 build/database/*.db
+build/newshub.exe
