@@ -39,6 +39,22 @@
     Card>h3 {
         display: flex;
     }
+
+    SettingSetect.byebye {
+        max-width: 300px;
+        margin-left: 16px;
+        opacity: 1;
+        filter: blur(0px);
+        transition: max-width 0.18s ease, opacity 0.2s ease, filter 0.1s ease;
+    }
+
+    div:has(SettingSetect>Options:hover)>SettingSetect.byebye:not(:hover) {
+        max-width: 0;
+        margin-left: 0;
+        opacity: 0;
+        filter: blur(4px);
+        overflow: hidden;
+    }
 </style>
 
 <div style="width: 100%;display: flex;flex-direction: column;gap: 16px;">
@@ -46,15 +62,25 @@
         <h3 style="margin-bottom: 6px;">
             <Icon>merge_type</Icon>推送渠道
         </h3>
-        <p style="margin-bottom: 16px;">选择你处理各项任务时使用的模型</p>
-        <SettingSetect style="margin: 0 0 16px 0;">
-            <Options>
-                <hOption tag="all">默认</hOption>
-                <hOption tag="+" onclick="addModel(this)" hide>
-                    <p style="width: 32px;text-align: center;cursor: pointer;"> + </p>
-                </hOption>
-            </Options>
-        </SettingSetect>
+        <p style="margin-bottom: 16px;">选中推送渠道</p>
+        <div style="display: flex;margin: 0 0 16px 0;">
+            <SettingSetect id="Models" add2left="false" onsetect="setectModel(this.setect)"
+                style="margin: 0 -16px 0 -16px;padding: 0 16px 0 16px;">
+                <Options>
+                    <hOption tag="none">未选中</hOption>
+                    <hOption tag="+" onclick="addModel(this)" hide>
+                        <p style="width: 32px;text-align: center;cursor: pointer;"> + </p>
+                    </hOption>
+                </Options>
+            </SettingSetect>
+            <SettingSetect banswitch="true" class="byebye">
+                <Options>
+                    <hOption>操作</hOption>
+                    <hOption hide>重命名</hOption>
+                    <hOption hide>删除</hOption>
+                </Options>
+            </SettingSetect>
+        </div>
         <SettingSetect add2left="true" style="margin: 0 0 16px 0;">
             <p>类型</p>
             <Options>

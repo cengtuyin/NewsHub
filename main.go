@@ -59,6 +59,8 @@ func main() {
 	r.HandleFunc("/api/wordsin", handle.WordFindNews2)
 	r.HandleFunc("/api/login", handle.Login)
 	r.HandleFunc("/api/settings", handle.UpdateSettings)
+	r.HandleFunc("/api/deletemodel", handle.UpdateSettings_DeleteModel)
+	r.HandleFunc("/api/renamemodel", handle.UpdateSettings_RenameModel)
 	r.HandleFunc("/api/chat", handle.Chat)
 	r.HandleFunc("/api/info", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json; charset=utf-8")
@@ -121,7 +123,7 @@ func authorizationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logined := config.CheckLogin(r)
 		path := strings.ToLower(r.URL.Path)
-		if slices.Contains([]string{"/api/settings", "/api/chat"}, path) && !logined {
+		if slices.Contains([]string{"/api/settings", "/api/chat", "/api/deletemodel", "/api/renamemodel"}, path) && !logined {
 			logintips(w, r)
 			return
 		}

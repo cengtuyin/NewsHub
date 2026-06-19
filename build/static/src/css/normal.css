@@ -141,8 +141,9 @@ button {
     color: var(--Color-Input-Text);
     background-color: var(--Color-Card-Button-Background2);
     filter: brightness(100%);
-    transition: filter 0.28s ease;
     white-space: nowrap;
+    will-change: color, filter, opacity, max-width, max-height;
+    transition: color 0.3s ease, filter 0.28s ease, opacity 0.28s ease, max-width 0.1s ease, max-height 0.1s ease, padding 0.1s ease, transform 0.2s ease;
 }
 
 button:hover {
@@ -500,8 +501,6 @@ CardButtons>button {
     background-color: var(--Color-Card-Button-Background2);
     filter: brightness(100%);
     cursor: pointer;
-    will-change: color, filter, opacity, max-width, max-height;
-    transition: color 0.3s ease, filter 0.28s ease, opacity 0.28s ease, max-width 0.1s ease, max-height 0.1s ease, padding 0.1s ease, transform 0.2s ease;
 }
 
 CardButtons>button[unable] {
@@ -511,7 +510,7 @@ CardButtons>button[unable] {
     background-color: transparent;
 }
 
-CardButtons>button[loading] {
+button[loading] {
     color: transparent;
     background-color: transparent;
     max-width: 38px;
@@ -658,10 +657,11 @@ SettingSetect {
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
+    scrollbar-width: none;
 }
 
 SettingSetect::-webkit-scrollbar {
-    width: 2px;
+    width: 4px;
     background-color: transparent;
 }
 

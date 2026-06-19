@@ -39,6 +39,42 @@
     Card>h3 {
         display: flex;
     }
+
+    SettingSetect.byebye {
+        max-width: 300px;
+        margin-left: 16px;
+        opacity: 1;
+        filter: blur(0px);
+        transition: max-width 0.18s ease, opacity 0.2s ease, filter 0.1s ease;
+    }
+
+    div:has(SettingSetect>Options:hover)>SettingSetect.byebye:not(:hover) {
+        max-width: 0;
+        margin-left: 0;
+        opacity: 0;
+        filter: blur(4px);
+        overflow: hidden;
+    }
+
+    .tips {
+        max-width: 400px;
+        margin-right: 16px;
+        display: flex;
+        align-items: center;
+        opacity: 1;
+        filter: blur(0px);
+        transform: translateX(0px);
+        transition: max-width 0.4s ease, transform 0.18s ease, opacity 0.2s ease, filter 0.1s ease;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .tips[hide] {
+        max-width: 0;
+        opacity: 0;
+        filter: blur(4px);
+        transform: translateX(28px);
+    }
 </style>
 
 <div style="width: 100%;display: flex;flex-direction: column;gap: 16px;">
@@ -59,14 +95,24 @@
             <Icon>menu_book</Icon>模型
         </h3>
         <p style="margin-bottom: 16px;">选择你处理各项任务时使用的模型</p>
-        <SettingSetect add2left="false" onsetect="console.error(this.setect)" style="margin: 0 0 16px 0;">
-            <Options>
-                <hOption tag="all">默认</hOption>
-                <hOption tag="+" onclick="addModel(this)" hide>
-                    <p style="width: 32px;text-align: center;cursor: pointer;"> + </p>
-                </hOption>
-            </Options>
-        </SettingSetect>
+        <div style="display: flex;margin: 0 0 16px 0;">
+            <SettingSetect id="Models" add2left="false" onsetect="setectModel(this.setect)"
+                style="margin: 0 -16px 0 -16px;padding: 0 16px 0 16px;">
+                <Options>
+                    <hOption tag="none">未选中</hOption>
+                    <hOption tag="+" onclick="addModel(this)" hide>
+                        <p style="width: 32px;text-align: center;cursor: pointer;"> + </p>
+                    </hOption>
+                </Options>
+            </SettingSetect>
+            <SettingSetect id="ControlModel" banswitch="true" onsetect="controlModel(this.setect)" class="byebye">
+                <Options>
+                    <hOption tag="none">操作</hOption>
+                    <hOption tag="rename" hide>重命名</hOption>
+                    <hOption tag="delete" hide>删除</hOption>
+                </Options>
+            </SettingSetect>
+        </div>
         <div style="display: grid;justify-content: start;gap: 16px;margin-bottom: 16px;">
             <input id="ModelUrl" style="min-width: 340px;" type="text" placeholder="Url" />
             <input id="ModelKey" style="min-width: 460px;" type="text" placeholder="Key" />
@@ -99,9 +145,20 @@
 <script>
     var NowPage = "SETTINGS";
     var UI_inputs = document.querySelectorAll("input, textarea");
+    var UI_Models = document.getElementById("Models");
+    var UI_ControlModel = document.getElementById("ControlModel");
+    var UI_ModelUrl = document.getElementById("ModelUrl");
+    var UI_ModelKey = document.getElementById("ModelKey");
+    var UI_Model = document.getElementById("Model");
+    var UI_dialog = document.getElementById("dialog");
+    var banexit = false;
+    var Settings = {};
 
     function InitPage() {
         AddMaterialIconClasses("Card>h3>Icon")
+        UI_ModelUrl.disabled = true;
+        UI_ModelKey.disabled = true;
+        UI_Model.disabled = true;
         let keyslist = [];
         UI_inputs.forEach((element) => {
             keyslist.push(element.id);
@@ -112,6 +169,20 @@
     function UnPage() {
         NowPage = null;
         UI_inputs = null;
+        UI_Models = null;
+        UI_ControlModel = null;
+        UI_ModelUrl = null;
+        UI_ModelKey = null;
+        UI_Model = null;
+        UI_dialog = null;
+        banexit = null;
+        Settings = null;
+    }
+
+    function clearModelInput() {
+        UI_ModelUrl.value = "";
+        UI_ModelKey.value = "";
+        UI_Model.value = "";
     }
 
     function addModel(element) {
@@ -123,154 +194,224 @@
             left: 114514,
             behavior: 'smooth'
         });
+        clearModelInput();
+    }
+
+    function setectModel(setect) {
+        const isban = setect == "none";
+        if (isban) clearModelInput();
+        UI_ModelUrl.disabled = isban;
+        UI_ModelKey.disabled = isban;
+        UI_Model.disabled = isban;
+        try {
+            UI_ModelUrl.value = Settings.Models[setect].Url;
+            UI_ModelKey.value = Settings.Models[setect].Key;
+            UI_Model.value = Settings.Models[setect].Model;
+        } catch (error) { }
+    }
+
+    function controlModel(setect) {
+        if (setect == "none") return;
+        let body = ``;
+        switch (setect) {
+            case "rename":
+                body = `<div>
+                            <input style="min-width: 230px;margin-bottom: 16px;" type="text" placeholder="请输入命名名称"/>
+                            <div style="height: 38px;display: flex;justify-content: flex-end;">
+                                <p class="tips" hide>Message</p>
+                                <button onclick="renameModel(this)">保存</button>
+                            </div>
+                        </div>`;
+                break;
+            case "delete":
+                body = `<div>
+                            <p style="min-width: 230px;margin-bottom: 16px;">本次操作不可撤销</p>
+                            <div style="height: 38px;display: flex;justify-content: flex-end;">
+                                <p class="tips" hide>Message</p>
+                                <button onclick="deleteModel(this)">确定</button>
+                            </div>
+                        </div>`;
+                break;
+
+            default:
+                break;
+        }
+        clickOption(UI_ControlModel.children[0], (setect == "delete" ? "删除" : "重命名"), body);
+        _initPage(_initPage_Icon | _initPage_OptionsCard);
+        AddMaterialIconClasses(`dialog>Card>h3>Icon`);
+    }
+
+    async function deleteModel(element) {
+        banexit = true;
+        const elem = element.parentNode.parentNode.children[1].children[0];
+        elem.setAttribute("hide", "");
+        ButtonLoadingAnimation(element, true)
+        try {
+            const res = await fetch(`/api/deletemodel?model=${encodeURIComponent(UI_Models.setech)}`);
+            if (res.status == 403) throw new Error("该操作需要登录");
+            else if(!res.ok) throw new Error(res.statusText);
+            const result = await res.json();
+            if (result.success) {
+                const list = UI_Models.children[0].children;
+                for (let i = 0; i < list.length; i++) {
+                    if (list[i].getAttribute("tag") == UI_Models.setect) {
+                        list[i].remove();
+                        break;
+                    }
+                }
+                banexit = false;
+                closeDialog();
+            } else throw new Error(result.message);
+        } catch (error) {
+            elem.innerText = error.message;
+            elem.removeAttribute("hide");
+            ButtonLoadingAnimation(element, false)
+            banexit = false;
+        }
+    }
+
+    async function renameModel(element) {
+        banexit = true;
+        const elem = element.parentNode.parentNode.children[1].children[0];
+        elem.setAttribute("hide", "");
+        ButtonLoadingAnimation(element, true)
+        try {
+            const to = dialog.children[0].children[1].children[0].value;
+            const res = await fetch(`/api/renamemodel?from=${encodeURIComponent(UI_Models.setech)}&to=${encodeURIComponent(to)}`);
+            if (res.status == 403) throw new Error("该操作需要登录");
+            else if (!res.ok) throw new Error(res.statusText);
+            const result = await res.json();
+            if (result.success) {
+                const list = UI_Models.children[0].children;
+                for (let i = 0; i < list.length; i++) {
+                    if (list[i].getAttribute("tag") == UI_Models.setect) {
+                        list[i].innerText = to;
+                        list[i].setAttribute("tag", to);
+                        break;
+                    }
+                }
+                banexit = false;
+                closeDialog();
+            } else throw new Error(result.message);
+        } catch (error) {
+            elem.innerText = error.message;
+            elem.removeAttribute("hide");
+            ButtonLoadingAnimation(element, false)
+            banexit = false;
+        }
+    }
+
+    async function loadSettings() {
+        const [result, error] = await GetSettings([
+            ["Models"],
+        ]);
+        if (error != null) {
+            alert(error.message);
+            return;
+        }
+        if (!result.success) {
+            alert(result.message);
+            return;
+        }
+        Settings = result.data;
+
+        Object.entries(Settings.Models).forEach(([name, model]) => {
+            const option = document.createElement("hOption");
+            option.setAttribute("hide", '');
+            option.innerText = `${name}`;
+            option.setAttribute("tag", name);
+            UI_Models.children[0].appendChild(option);
+        });
+
     }
 
     async function resetSettings(button) {
-        let keyslist = [];
-        button.parentNode.parentNode.querySelectorAll("input, textarea").forEach((element) => {
-            keyslist.push(element.id);
-        });
-        ButtonLoadingAnimation(button, true);
-        const out = setTimeout(() => {
-            console.log("Run")
-            CardButtonsDisplayMessage(button, true, "你补药超时啊")
-            setTimeout(() => {
-                CardButtonsDisplayMessage(button, false)
-                ButtonLoadingAnimation(button, false);
-            }, 1000 * 3);
-        }, 1000 * 8);
-        await loadSettings(keyslist);
-        clearTimeout(out);
-        console.log("Clear")
+        try {
+            UI_ModelUrl.value = Settings.Models[UI_Models.setect].Url;
+            UI_ModelKey.value = Settings.Models[UI_Models.setect].Key;
+            UI_Model.value = Settings.Models[UI_Models.setect].Model;
+        } catch (error) { }
         button.parentNode.setAttribute('hide', '');
-        setTimeout(() => {
-            ButtonLoadingAnimation(button, false);
-        }, 300);
     }
 
     async function saveNewSettings(button) {
+        UI_ModelUrl.disabled = true;
+        UI_ModelKey.disabled = true;
+        UI_Model.disabled = true;
         ButtonLoadingAnimation(button, true);
-        const data = await saveSettingsElements(button.parentNode.parentNode.querySelectorAll("input, textarea"));
-        if (data.success) {
-            button.parentNode.setAttribute('hide', '');
-            setTimeout(() => {
-                ButtonLoadingAnimation(button, false);
-            }, 300);
-        } else {
-            CardButtonsDisplayMessage(button, true, data.message)
+        const [result, error] = await SaveSettings({
+            "Models": {
+                [UI_Models.setect]: {
+                    "Url": UI_ModelUrl.value,
+                    "Key": UI_ModelKey.value,
+                    "Model": UI_Model.value
+                }
+            }
+        });
+        if (error != null) {
+            CardButtonsDisplayMessage(button, true, error.message)
             setTimeout(() => {
                 CardButtonsDisplayMessage(button, false)
                 ButtonLoadingAnimation(button, false);
             }, 1000 * 3);
-        }
-    }
-
-    async function loadSettings(keys) {
-        UI_inputs.forEach((element) => {
-            if (keys.indexOf(element.id) == -1) return;
-            element.disabled = true;
-            if (element.type == "text") element.value = "-- 加载中，稍等片刻 --";
-        });
-        data = await getSettings(keys);
-        UI_inputs.forEach((element) => {
-            if (keys.indexOf(element.id) == -1) return;
-            setElementValue(element, data[element.id])
-            if (data[element.id] != "这是一个标记信息") element.disabled = false;
-        });
-    }
-
-    async function getSettings(keys) {
-        try {
-            const res = await fetch(`/api/settings?keys=${encodeURIComponent(JSON.stringify(keys, null, 0))}`);
-            if (res.status == 403) {
-                rdata = {};
-                keys.forEach((key) => {
-                    rdata[key] = "这是一个标记信息";
-                })
-                return rdata;
-            } else if (!res.ok) throw new Error(res.statusText);
-            const t = await res.json();
-            if (t.success) {
-                return t.data;
-            } else {
-                console.error(t.message);
-                return null;
-            }
-        } catch (err) {
-            console.error(err);
-            return null;
-        }
-    }
-
-    function setElementValue(element, value) {
-        if (value == "这是一个标记信息") {
-            setElementNeedLogin(element);
             return;
         }
-        switch (element.type) {
-            case "checkbox":
-                element.checked = value;
-                break;
-            default:
-                element.value = value;
-                break;
+        if (!result.success) {
+            CardButtonsDisplayMessage(button, true, error.message)
+            setTimeout(() => {
+                CardButtonsDisplayMessage(button, false)
+                ButtonLoadingAnimation(button, false);
+            }, 1000 * 3);
+            return;
         }
-    }
-    function setElementNeedLogin(element) {
-        switch (element.type) {
-            case "checkbox":
-                element.checked = false;
-                break;
-            default:
-                element.value = "-- 需要登录后才可操作 --";
-                break;
-        }
+        button.parentNode.setAttribute('hide', '');
+        setTimeout(() => {
+            ButtonLoadingAnimation(button, false);
+            UI_ModelUrl.disabled = false;
+            UI_ModelKey.disabled = false;
+            UI_Model.disabled = false;
+            Settings.Model[UI_Models.setect].Url = UI_ModelUrl.value;
+            Settings.Model[UI_Models.setect].Key = UI_ModelKey.value;
+            Settings.Model[UI_Models.setect].Model = UI_Model.value;
+        }, 300);
     }
 
-    async function saveSettingsElements(elements) {
-        let keys = [];
-        let values = [];
-        elements.forEach((element) => {
-            keys.push(element.id);
-            switch (element.type) {
-                case "checkbox":
-                    values.push(element.checked);
-                    break;
-                default:
-                    values.push(element.value);
-                    break;
-            }
-        });
-        return await saveSettings(keys, values);
-    }
-
-    async function saveSettings(keys, values) {
-        try {
-            const response = await fetch('/api/settings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    "keys": keys,
-                    "values": values
-                })
+    function clickOption(element, title, html, closeelement = null) {
+        if (NowPage != "SETTINGS") return;
+        UI_dialog.innerHTML = `<Card style="max-width: 70vw;max-height: 60vh;" class="Card"><h3 style="display: flex;color: var(--Color-Header-Icon-Unpress);margin-bottom: 16px;">Title</h3></Card>`;
+        UI_dialog.children[0].children[0].innerHTML = `${title}`;
+        UI_dialog.children[0].appendChild(document.createRange().createContextualFragment(html).firstChild);
+        UI_dialog.children[0].children[1].onclick = (e) => {
+            e.stopPropagation();
+        };
+        if (closeelement == null) closeelement = UI_dialog;
+        else closeelement = document.getElementById(closeelement);
+        closeelement.onclick = closeDialog;
+        UI_dialog.children[0].style.viewTransitionName = 'dialog'
+        element.style.viewTransitionName = 'dialog'
+        if (document.startViewTransition) {
+            document.startViewTransition(() => {
+                UI_dialog.style.display = "flex";
+                UI_dialog.offsetHeight;
+                UI_dialog.classList.remove("hide");
+                element.style.viewTransitionName = '';
             });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error('错误:', error);
-            switch (error.message) {
-                case "Failed to fetch": error.message = "请检查网络状况喵"; break;
-            }
-            return {
-                success: false,
-                message: error.message
-            };
+        } else {
+            UI_dialog.style.display = "flex";
+            UI_dialog.offsetHeight;
+            UI_dialog.classList.remove("hide");
+            element.style.viewTransitionName = '';
         }
     }
+
+    function closeDialog() {
+        if (banexit) return;
+        UI_dialog.classList.add("hide");
+        UI_dialog.offsetHeight;
+        setTimeout(() => {
+            UI_dialog.style.display = "none";
+        }, 300);
+    }
+
+
 </script>

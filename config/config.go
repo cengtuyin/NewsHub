@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	VersionName string = "v0.0.6"
-	VersionCode int    = 2026061700
+	VersionName string = "v0.0.7"
+	VersionCode int    = 2026061800
 
 	RunDir      string
 	DataBaseDir string = "/database"
@@ -25,7 +25,8 @@ var (
 	Logined      []string
 
 	Save2DBTime int64 = 60 * 15
-	Models      map[string]allstruct.ModelInfo
+
+	Models map[string]allstruct.ModelInfo = make(map[string]allstruct.ModelInfo)
 
 	SourceZhihu    string = "https://orz.ai/api/v1/dailynews/multi?platforms=zhihu"
 	SourceBilibili string = "https://orz.ai/api/v1/dailynews/multi?platforms=bilibili"
@@ -54,14 +55,19 @@ func Init() {
 			if v, ok := fconfig["userpassword"].(string); ok {
 				UserPassword = v
 			}
-			if v, ok := fconfig["models"].([]map[string]string); ok {
-				for _, v2 := range v {
+			if v, ok := fconfig["models"].(map[string]any); ok {
+				log.Println("品鉴中")
+				for k, v2 := range v {
+					v2 := v2.(map[string]any)
+					log.Println(k, v2)
 					var model allstruct.ModelInfo
-					model.Model = v2["model"]
-					model.Key = v2["key"]
-					model.Url = v2["url"]
-					Models[v2["name"]] = model
+					model.Model = v2["Model"].(string)
+					model.Key = v2["Key"].(string)
+					model.Url = v2["Url"].(string)
+					Models[k] = model
 				}
+			} else {
+				log.Println("无法解析 models")
 			}
 		} else {
 			log.Println("无法解析配置 config.json")

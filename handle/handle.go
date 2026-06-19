@@ -300,18 +300,28 @@ func UpdateSettings(w http.ResponseWriter, r *http.Request) {
 		var i int
 		for i = 0; i < len(klist); i++ {
 			key := klist[i]
-			if keys, ok := key.([]string); ok {
-				switch keys[0] {
+			if keys, ok := key.([]any); ok {
+				switch keys[0].(string) {
 				case "Models":
-					rdata["Models"] = []map[string]string{}
-					for _, v := range keys {
-						rdatas := make(map[string]string)
-						if v != keys[0] {
-							rdatas["Url"] = config.Models[v].Url
-							rdatas["Key"] = config.Models[v].Key
-							rdatas["Model"] = config.Models[v].Model
+					rdata["Models"] = map[string]map[string]string{}
+					if len(keys) > 1 {
+						for _, v := range keys {
+							if v.(string) != keys[0].(string) {
+								rdata["Models"].(map[string]map[string]string)[v.(string)] = map[string]string{
+									"Url":   config.Models[v.(string)].Url,
+									"Key":   config.Models[v.(string)].Key,
+									"Model": config.Models[v.(string)].Model,
+								}
+							}
 						}
-						rdata["Models"] = append(rdata["Models"].([]map[string]string), rdatas)
+					} else {
+						for k, v := range config.Models {
+							rdata["Models"].(map[string]map[string]string)[k] = map[string]string{
+								"Url":   v.Url,
+								"Key":   v.Key,
+								"Model": v.Model,
+							}
+						}
 					}
 				default:
 					returnMessage(w, false, "不受支持的[key]")
@@ -331,14 +341,7 @@ func UpdateSettings(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-		if data, err := json.Marshal(map[string]any{
-			"success": true,
-			"data":    rdata,
-		}); err == nil {
-			if _, err := w.Write(data); err != nil {
-				log.Println("Words Write Error")
-			}
-		}
+		returnData(w, true, rdata)
 	case http.MethodPost:
 		var data map[string]any
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
@@ -346,67 +349,87 @@ func UpdateSettings(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer r.Body.Close()
-		klist, ok := data["keys"].([]any)
-		if !ok {
-			returnMessage(w, false, "需要POST&JSON参数[keys]")
-			return
-		}
-		vlist, ok := data["values"].([]any)
-		if !ok {
-			returnMessage(w, false, "需要POST&JSON参数[values]")
-			return
-		}
-		var i int
-		for i = 0; i < len(klist); i++ {
-			key := klist[i]
-			value := vlist[i]
-			if keys, ok := key.([]string); ok {
-				switch keys[0] {
-				case "Models":
-					values := value.([]map[string]string)
-					for i, v := range keys {
-						var modelinfo allstruct.ModelInfo
-						if v != keys[0] {
-							if vvv, ok := values[i]["Url"]; ok {
-								modelinfo.Url = vvv
-							}
-							if vvv, ok := values[i]["Key"]; ok {
-								modelinfo.Key = vvv
-							}
-							if vvv, ok := values[i]["Model"]; ok {
-								modelinfo.Model = vvv
-							}
-						}
-						config.Models[values[i]["Name"]] = modelinfo
-					}
+		for k, v := range data {
+			switch k {
+			case "Save2DBTime":
+				if target, ok := v.(float64); ok {
+					config.Save2DBTime = int64(target)
 					config.SaveSettings()
-				default:
-					returnMessage(w, false, "不受支持的[key]")
+				} else {
+					returnMessage(w, false, v.(string)+"参数[value]需要为整数")
 					return
 				}
-			} else if key, ok := key.(string); ok && key != "" {
-				switch key {
-				case "Save2DBTime":
-					if target, ok := value.(float64); ok {
-						config.Save2DBTime = int64(target)
-						config.SaveSettings()
-					} else {
-						returnMessage(w, false, key+"参数[value]需要为整数")
-						return
+			case "SourceNewsNow":
+				config.SourceNewsNow = v.(string)
+				config.SaveSettings()
+			case "SourceNewsNow2":
+				config.SourceNewsNow2 = v.(string)
+				config.SaveSettings()
+			case "Models":
+				for k, v := range v.(map[string]any) {
+					v := v.(map[string]any)
+					var modelinfo allstruct.ModelInfo
+					if t, ok := config.Models[k]; ok {
+						modelinfo = t
 					}
-				case "SourceNewsNow":
-					config.SourceNewsNow = value.(string)
-					config.SaveSettings()
-				case "SourceNewsNow2":
-					config.SourceNewsNow2 = value.(string)
-					config.SaveSettings()
-				default:
-					returnMessage(w, false, "不受支持的[key]:"+key)
-					return
+					if vvv, ok := v["Url"]; ok {
+						modelinfo.Url = vvv.(string)
+					}
+					if vvv, ok := v["Key"]; ok {
+						modelinfo.Key = vvv.(string)
+					}
+					if vvv, ok := v["Model"]; ok {
+						modelinfo.Model = vvv.(string)
+					}
+					config.Models[k] = modelinfo
 				}
+				config.SaveSettings()
+			default:
+				returnMessage(w, false, "不受支持的[key]:"+k)
+				return
 			}
 		}
-		returnMessage(w, true, "修改成功")
+		returnData(w, true, "修改成功")
+	}
+}
+
+func UpdateSettings_RenameModel(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		returnMessage(w, false, "仅支持GET")
+		return
+	}
+	from := r.URL.Query().Get("from")
+	to := r.URL.Query().Get("to")
+	if from == "" || to == "" {
+		returnMessage(w, false, "需要GET参数[from][to]")
+		return
+	}
+	if t, ok := config.Models[from]; ok {
+		delete(config.Models, from)
+		config.Models[to] = t
+		config.SaveSettings()
+		returnData(w, true, "修改成功")
+	} else {
+		returnMessage(w, false, "不存在该模型")
+	}
+}
+
+func UpdateSettings_DeleteModel(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		returnMessage(w, false, "仅支持GET")
+		return
+	}
+	re := r.URL.Query().Get("model")
+	if re == "" {
+		returnMessage(w, false, "需要GET参数[model]")
+		return
+	}
+	if _, ok := config.Models[re]; ok {
+		delete(config.Models, re)
+		config.SaveSettings()
+		returnData(w, true, "删除成功")
+	} else {
+		returnMessage(w, false, "不存在该模型")
 	}
 }
 
@@ -462,7 +485,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 				MaxAge: 60 * 60 * 3,
 			}
 			http.SetCookie(w, cookie)
-			returnMessage(w, true, "登录成功")
+			returnData(w, true, "登录成功")
 			return
 		}
 	}
