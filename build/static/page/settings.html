@@ -247,9 +247,9 @@
         elem.setAttribute("hide", "");
         ButtonLoadingAnimation(element, true)
         try {
-            const res = await fetch(`/api/deletemodel?model=${encodeURIComponent(UI_Models.setech)}`);
+            const res = await fetch(`/api/deletemodel?model=${encodeURIComponent(UI_Models.setect)}`);
             if (res.status == 403) throw new Error("该操作需要登录");
-            else if(!res.ok) throw new Error(res.statusText);
+            else if (!res.ok) throw new Error(res.statusText);
             const result = await res.json();
             if (result.success) {
                 const list = UI_Models.children[0].children;
@@ -259,7 +259,10 @@
                         break;
                     }
                 }
+                UI_Models.children[0].children[0].removeAttribute("hide");
+                UI_Models.setect = "none";
                 banexit = false;
+                clearModelInput();
                 closeDialog();
             } else throw new Error(result.message);
         } catch (error) {
@@ -277,7 +280,7 @@
         ButtonLoadingAnimation(element, true)
         try {
             const to = dialog.children[0].children[1].children[0].value;
-            const res = await fetch(`/api/renamemodel?from=${encodeURIComponent(UI_Models.setech)}&to=${encodeURIComponent(to)}`);
+            const res = await fetch(`/api/renamemodel?from=${encodeURIComponent(UI_Models.setect)}&to=${encodeURIComponent(to)}`);
             if (res.status == 403) throw new Error("该操作需要登录");
             else if (!res.ok) throw new Error(res.statusText);
             const result = await res.json();
@@ -291,6 +294,7 @@
                     }
                 }
                 banexit = false;
+                UI_Models.setect = to;
                 closeDialog();
             } else throw new Error(result.message);
         } catch (error) {

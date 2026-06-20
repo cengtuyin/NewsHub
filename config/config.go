@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	VersionName string = "v0.0.7"
-	VersionCode int    = 2026061800
+	VersionName string = "v0.0.8"
+	VersionCode int    = 2026062000
 
 	RunDir      string
 	DataBaseDir string = "/database"
