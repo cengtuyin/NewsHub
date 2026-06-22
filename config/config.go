@@ -26,6 +26,8 @@ var (
 
 	Save2DBTime int64 = 60 * 15
 
+	Pushs map[string]allstruct.Pusher = make(map[string]allstruct.Pusher)
+
 	Models map[string]allstruct.ModelInfo = make(map[string]allstruct.ModelInfo)
 
 	SourceZhihu    string = "https://orz.ai/api/v1/dailynews/multi?platforms=zhihu"
@@ -56,10 +58,8 @@ func Init() {
 				UserPassword = v
 			}
 			if v, ok := fconfig["models"].(map[string]any); ok {
-				log.Println("品鉴中")
 				for k, v2 := range v {
 					v2 := v2.(map[string]any)
-					log.Println(k, v2)
 					var model allstruct.ModelInfo
 					model.Model = v2["Model"].(string)
 					model.Key = v2["Key"].(string)
@@ -68,6 +68,31 @@ func Init() {
 				}
 			} else {
 				log.Println("无法解析 models")
+			}
+			if v, ok := fconfig["pushs"].(map[string]any); ok {
+				for k, v2 := range v {
+					v2 := v2.(map[string]any)
+					class := v2["Class"].(string)
+					var push allstruct.Pusher
+					switch class {
+					case "Webhook":
+						thet := make(map[string]string)
+						for k3, v3 := range v2["Header"].(map[string]any) {
+							thet[k3] = v3.(string)
+						}
+						push = allstruct.PushInfo_Webhook{
+							PushInfo: allstruct.PushInfo{
+								Class: "Webhook",
+								Url:   v2["Url"].(string),
+							},
+							Header: thet,
+							Body:   v2["Body"].(string),
+						}
+					}
+					Pushs[k] = push
+				}
+			} else {
+				log.Println("无法解析 pushs")
 			}
 		} else {
 			log.Println("无法解析配置 config.json")

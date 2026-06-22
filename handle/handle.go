@@ -535,3 +535,25 @@ func Chat(w http.ResponseWriter, r *http.Request) {
 		returnData(w, true, rdata)
 	}
 }
+
+func Push(w http.ResponseWriter, r *http.Request) {
+	to := r.URL.Query().Get("to")
+	if to == "" {
+		returnMessage(w, false, "需要GET参数[to]")
+		return
+	}
+	if push, ok := config.Pushs[to]; ok {
+		if err := push.Push(allstruct.PushMessage{
+			Type:    r.URL.Query().Get("type"),
+			Title:   r.URL.Query().Get("title"),
+			Content: r.URL.Query().Get("content"),
+			Url:     r.URL.Query().Get("url"),
+		}); err == nil {
+			returnData(w, true, "发送成功")
+		} else {
+			returnMessage(w, false, fmt.Sprint(err))
+		}
+	} else {
+		returnMessage(w, false, "该推送渠道无效")
+	}
+}

@@ -62,6 +62,7 @@ func main() {
 	r.HandleFunc("/api/deletemodel", handle.UpdateSettings_DeleteModel)
 	r.HandleFunc("/api/renamemodel", handle.UpdateSettings_RenameModel)
 	r.HandleFunc("/api/chat", handle.Chat)
+	r.HandleFunc("/api/push", handle.Push)
 	r.HandleFunc("/api/info", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json; charset=utf-8")
 		data := map[string]any{
